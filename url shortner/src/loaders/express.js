@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { errorHandler } from "../middleware/errorHandler.js";
 
 export default async (app) => {
   app.get("/health", (req, res) => res.status(200).end());
@@ -12,13 +13,5 @@ export default async (app) => {
   app.use(express.json());
 
   // global error
-  app.use((err, req, res) => {
-    err.statusCode = err.statusCode || 500;
-    err.message = err.message || "Error";
-
-    res.status(err.statusCode).json({
-      statusCode: err.statusCode,
-      message: err.message,
-    });
-  });
+  app.use(errorHandler);
 };
