@@ -1,0 +1,28 @@
+{
+  "name": "url-shortner",
+  "version": "1.0.0",
+  "description": "elite level url shortner project",
+  "license": "ISC",
+  "author": "Yash Sharma",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "hpp": "^0.2.3",
+    "mongoose": "^9.6.3",
+    "ua-parser-js": "^2.0.10",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
