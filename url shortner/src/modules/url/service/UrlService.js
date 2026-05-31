@@ -5,7 +5,6 @@ import { AppError } from "../../../shared/errors/AppError.js";
 
 export class UrlService {
   static async shortenUrl(payload, clientIp) {
-    console.log(payload, clientIp);
     const { url, customAlias, expiresInHour } = payload.data;
     const normalize = normalizeUrl(url);
     const ipHash = hashString(clientIp);

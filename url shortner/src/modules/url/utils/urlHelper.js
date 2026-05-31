@@ -1,9 +1,7 @@
 import crypto from "crypto";
 
 export const normalizeUrl = (inputUrl) => {
-  console.log(inputUrl);
   const parsed = new URL(inputUrl);
-  console.log("parsed: ", parsed);
 
   //   fetching hostname and converting it to lowercase
   let hostname = parsed.hostname.toLowerCase();
