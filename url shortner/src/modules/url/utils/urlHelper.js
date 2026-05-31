@@ -1,7 +1,9 @@
 import crypto from "crypto";
 
 export const normalizeUrl = (inputUrl) => {
+  console.log(inputUrl);
   const parsed = new URL(inputUrl);
+  console.log("parsed: ", parsed);
 
   //   fetching hostname and converting it to lowercase
   let hostname = parsed.hostname.toLowerCase();
@@ -26,7 +28,7 @@ export const generateShortCode = (length = 7) => {
 
   const bytes = crypto.randomBytes(length);
 
-  for (i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     code += alphabet[bytes[i] % alphabet.length];
   }
 

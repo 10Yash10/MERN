@@ -1,0 +1,137 @@
+### =========================================================================
+### SMART URL SHORTENER API — VERIFICATION & INTEGRATION WORKFLOWS
+### =========================================================================
+@baseUrl = http://localhost:3000
+@apiVersion = api/v1
+
+###
+### WORKFLOW 1: ENVIRONMENT & HEALTH VERIFICATION
+###
+
+# @name checkHealth
+# Checks server uptime, memory footprint, and MongoDB connectivity status.
+GET {{baseUrl}}/health
+Accept: application/json
+
+---
+
+###
+### WORKFLOW 2: CORE CRUD & REDIRECTION LIFECYCLE
+###
+
+# @name createStandardUrl
+# Creates a standard tracking link with an auto-generated Base62 token.
+POST {{baseUrl}}/{{apiVersion}}/urls
+Content-Type: application/json
+Accept: application/json
+
+{
+  "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302",
+  "expiresInHours": 24
+}
+
+### Capture the dynamic shortCode from the creation response above
+@generatedShortCode = {{createStandardUrl.response.body.data.shortCode}}
+
+
+# @name executeRedirect
+# Triggers the hot-path redirect route. 
+# Note: REST Client will automatically follow the 302 redirect by default.
+GET {{baseUrl}}/{{generatedShortCode}}
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+Referer: https://github.com/trending
+
+
+# @name getUrlDetails
+# Fetches administrative configuration details and raw metadata.
+GET {{baseUrl}}/{{apiVersion}}/urls/{{generatedShortCode}}
+Accept: application/json
+
+
+# @name getAnalyticsSummary
+# Validates the asynchronous analytics engine pipeline and MongoDB aggregation.
+GET {{baseUrl}}/{{apiVersion}}/urls/{{generatedShortCode}}/analytics
+Accept: application/json
+
+---
+
+###
+### WORKFLOW 3: CUSTOM ALIAS & INJECTION PROTECTION
+###
+
+# @name createCustomAlias
+# Verifies successful registration of custom identifiers.
+POST {{baseUrl}}/{{apiVersion}}/urls
+Content-Type: application/json
+
+{
+  "url": "https://expressjs.com/en/advanced/best-practice-security.html",
+  "customAlias": "security-audit"
+}
+
+
+# @name testDuplicateAliasConflict
+# EXPECTED OUTCOME: 409 Conflict (Ensures custom identifier uniqueness constraint).
+POST {{baseUrl}}/{{apiVersion}}/urls
+Content-Type: application/json
+
+{
+  "url": "https://google.com",
+  "customAlias": "security-audit"
+}
+
+
+# @name testReservedKeywordBlock
+# EXPECTED OUTCOME: 400 Bad Request (Ensures routing keywords cannot be hijacked).
+POST {{baseUrl}}/{{apiVersion}}/urls
+Content-Type: application/json
+
+{
+  "url": "https://google.com",
+  "customAlias": "admin"
+}
+
+
+# @name testOpenRedirectVulnerability
+# EXPECTED OUTCOME: 400 Bad Request (Ensures protocol schemas are restricted to http/https).
+POST {{baseUrl}}/{{apiVersion}}/urls
+Content-Type: application/json
+
+{
+  "url": "javascript:alert(document.cookie)",
+  "customAlias": "exploit-attempt"
+}
+
+---
+
+###
+### WORKFLOW 4: EXPIRATION, DEACTIVATION, & EDGE CASES
+###
+
+# @name createExpiringUrl
+# Generates a link scheduled to expire instantly (using an engineering-level fractional hours payload if your validation supports it, or manual DB modification).
+# For immediate 410 simulation, we pass a valid payload here and test deactivation below.
+POST {{baseUrl}}/{{apiVersion}}/urls
+Content-Type: application/json
+
+{
+  "url": "https://www.mongodb.com/docs/manual/core/index-ttl/",
+  "customAlias": "temporary-link",
+  "expiresInHours": 1
+}
+
+
+# @name deactivateUrl
+# Soft-disables a short link manually via administration channels.
+PATCH {{baseUrl}}/{{apiVersion}}/urls/temporary-link/deactivate
+Accept: application/json
+
+
+# @name testDeactivatedLinkResolution
+# EXPECTED OUTCOME: 404 Not Found (Ensures deactivated assets do not process execution routing).
+GET {{baseUrl}}/temporary-link
+
+
+# @name testInvalidShortCode404
+# EXPECTED OUTCOME: 404 Not Found (Tests fallback behavior for missing random hashes).
+GET {{baseUrl}}/nonExistentToken999

@@ -1,0 +1,21 @@
+import { UrlService } from "../service/UrlService.js";
+import { createUrlSchema } from "../validation/urlValidation.js";
+import { asyncHandler } from "../../../shared/utils/asyncHandler.js";
+import { config } from "../../../config/env.js";
+
+export const createShortUrl = asyncHandler(async (req, res) => {
+  const parsedBody = createUrlSchema.safeParse(req.body);
+  const ip = req.ip || req.headers["x-forwarded-for"];
+
+  const result = await UrlService.shortenUrl(parsedBody, ip);
+
+  return res.status(201).json({
+    status: "success",
+    data: {
+      shortCode: result.shortCode,
+      shortUrl: `${config.APP_BASE_URL}/${result.shortCode}`,
+      originalUrl: result.originalUrl,
+      expiresAt: result.expiresAt,
+    },
+  });
+});
