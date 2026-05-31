@@ -1,11 +1,12 @@
-import { Url } from "../model/Url";
-import { hashString } from "../../../shared/utils/crypto";
-import { generateShortCode, normalizeUrl } from "../utils/urlHelper";
-import { AppError } from "../../../shared/errors/AppError";
+import { Url } from "../model/Url.js";
+import { hashString } from "../../../shared/utils/crypto.js";
+import { generateShortCode, normalizeUrl } from "../utils/urlHelper.js";
+import { AppError } from "../../../shared/errors/AppError.js";
 
 export class UrlService {
   static async shortenUrl(payload, clientIp) {
-    const { url, customAlias, expiresInHour } = payload;
+    console.log(payload, clientIp);
+    const { url, customAlias, expiresInHour } = payload.data;
     const normalize = normalizeUrl(url);
     const ipHash = hashString(clientIp);
 
