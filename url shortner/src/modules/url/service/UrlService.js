@@ -5,7 +5,7 @@ import { AppError } from "../../../shared/errors/AppError.js";
 
 export class UrlService {
   static async shortenUrl(payload, clientIp) {
-    const { url, customAlias, expiresInHour } = payload.data;
+    const { url, customAlias, expiresInHours } = payload;
     const normalize = normalizeUrl(url);
     const ipHash = hashString(clientIp);
 
@@ -24,7 +24,7 @@ export class UrlService {
         );
       }
 
-      finalShortCode = isCustom;
+      finalShortCode = customAlias;
     } else {
       // generate url and then check in database 3 times. if not able to generate throw error
       let attempt = 0;
@@ -48,14 +48,14 @@ export class UrlService {
       }
     }
 
-    const expiresAt = expiresInHour
-      ? new Date(Date.now() + expiresInHour * 60 * 60 * 1000)
+    const expiresAt = expiresInHours
+      ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000)
       : null;
 
     const newUrlRecord = await Url.create({
       shortCode: finalShortCode,
       originalUrl: url,
-      normalizedUrl: normalizeUrl,
+      normalizedUrl: normalize,
       customAlias: isCustom ? customAlias : null,
       isCustomAlias: isCustom,
       expiresAt,
@@ -65,5 +65,29 @@ export class UrlService {
     return newUrlRecord;
     // END OF SHORTENURL FUNCTION
   }
+
+  static async resolveAndProcessRedirect(shortCode) {
+    const urlRecord = await Url.findOne({ shortCode });
+
+    // check if there is any record found or if that record is active
+    if (!urlRecord || !urlRecord.isActive) {
+      throw new AppError(
+        "The requested short URL does not exist or has been disabled",
+        404,
+        "URL_NOT_FOUND",
+      );
+    }
+
+    if (urlRecord.expiresAt && urlRecord.expiresAt < new Date()) {
+      throw new AppError(
+        "The url you are trying to use has expired",
+        410,
+        "URL_EXPIRED",
+      );
+    }
+
+    return urlRecord.originalUrl;
+  }
+
   //   END OF CLASS
 }
