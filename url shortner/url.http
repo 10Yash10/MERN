@@ -26,20 +26,21 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/302",
-  "expiresInHours": 24
+  "url": "https://www.linkedin.com/in/yash-sharma-519308216",
+  "expiresInHours": 24,
+  "customAlias": "Yash Sharma"
 }
 
 ### Capture the dynamic shortCode from the creation response above
-@generatedShortCode = {{createStandardUrl.response.body.data.shortCode}}
+@generatedShortCode = A7KIjo0
 
 
 # @name executeRedirect
 # Triggers the hot-path redirect route. 
 # Note: REST Client will automatically follow the 302 redirect by default.
 GET {{baseUrl}}/{{generatedShortCode}}
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
-Referer: https://github.com/trending
+# User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+# Referer: https://github.com/trending
 
 
 # @name getUrlDetails

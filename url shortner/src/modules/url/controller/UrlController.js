@@ -4,7 +4,7 @@ import { asyncHandler } from "../../../shared/utils/asyncHandler.js";
 import { config } from "../../../config/env.js";
 
 export const createShortUrl = asyncHandler(async (req, res) => {
-  const parsedBody = createUrlSchema.safeParse(req.body);
+  const parsedBody = createUrlSchema.parse(req.body);
   const ip = req.ip || req.headers["x-forwarded-for"];
 
   const result = await UrlService.shortenUrl(parsedBody, ip);
@@ -18,4 +18,12 @@ export const createShortUrl = asyncHandler(async (req, res) => {
       expiresAt: result.expiresAt,
     },
   });
+});
+
+export const handleRedirect = asyncHandler(async (req, res) => {
+  const { shortCode } = req.params;
+
+  const destinationUrl = await UrlService.resolveAndProcessRedirect(shortCode);
+
+  return res.redirect(302, destinationUrl);
 });
