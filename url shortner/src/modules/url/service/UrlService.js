@@ -1,7 +1,9 @@
 import { Url } from "../model/Url.js";
+import { AnalyticsEvent } from "../model/AnalyticsEvent.js";
 import { hashString } from "../../../shared/utils/crypto.js";
 import { generateShortCode, normalizeUrl } from "../utils/urlHelper.js";
 import { AppError } from "../../../shared/errors/AppError.js";
+import { UAParser } from "ua-parser-js";
 
 export class UrlService {
   static async shortenUrl(payload, clientIp) {
@@ -66,7 +68,8 @@ export class UrlService {
     // END OF SHORTENURL FUNCTION
   }
 
-  static async resolveAndProcessRedirect(shortCode) {
+  static async resolveAndProcessRedirect(shortCode, requestDetails) {
+    const { ip, userAgent, referrer } = requestDetails;
     const urlRecord = await Url.findOne({ shortCode });
 
     // check if there is any record found or if that record is active
@@ -86,7 +89,43 @@ export class UrlService {
       );
     }
 
+    // while redirecting we do analytics related operation
+    // FIRE AND FORGET analytics tracking
+    this.trackAnalyticsAsync(shortCode, ip, userAgent, referrer).catch((err) =>
+      console.error(
+        "[NON-BLOCKING ERROR] Logging analytic trace failed for ",
+        shortCode,
+        err,
+      ),
+    );
+
     return urlRecord.originalUrl;
+  }
+
+  static async trackAnalyticsAsync(shortCode, ip, uaString, referrerString) {
+    const ipHash = hashString(ip);
+    const visitorsHash = hashString(`${ip}-${uaString}`);
+    const parser = new UAParser(uaString);
+    const uaParsed = parser.getResult();
+
+    // Challenge 6 Implementation: Detect Bot Traffic Pollution
+    const botPattern = /bot|spider|crawl|slurp|api|lighthouse|scrap/i;
+    const isBot = botPattern.test(uaString || "");
+
+    // automatic increase by 1
+    await Url.updateOne({ shortCode }, { $inc: { totalClicks: 1 } });
+
+    // create new analyticsEvent
+    await AnalyticsEvent.create({
+      shortCode,
+      visitorsHash,
+      ipHash,
+      userAgent: uaString,
+      referrer: referrerString || "Direct",
+      deviceType: uaParsed.device.type || "desktop",
+      browser: uaParsed.browser.name || "unknown",
+      isBot,
+    });
   }
 
   //   END OF CLASS
