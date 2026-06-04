@@ -128,5 +128,75 @@ export class UrlService {
     });
   }
 
+  static async getUrlMetadata(shortCode) {
+    const record = await Url.findOne({ shortCode }).select(
+      "-createdByIpHash -__v",
+    );
+
+    if (!record) throw new AppError("URL not found", 404, "URL_NOT_FOUND");
+
+    return record;
+  }
+
+  static async getAggregatedMetrics(shortCode) {
+    const record = await Url.findOne({ shortCode });
+
+    if (!record)
+      throw new AppError(
+        "URL metrics tracking profile not found",
+        404,
+        "URL_NOT_FOUND",
+      );
+
+    const aggregatePipeline = await AnalyticsEvent.aggregate([
+      { $match: { shortCode } },
+      {
+        $facet: {
+          uniqueVisitorsCount: [
+            { $group: { _id: "$visitorsHash" } },
+            { $count: "count" },
+          ],
+          topBrowsers: [
+            { $group: { _id: "$browser", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 },
+          ],
+          topReferrer: [
+            { $group: { _id: "$referrer", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 },
+          ],
+        },
+      },
+    ]);
+
+    const facetResult = aggregatePipeline[0];
+    const uniqueCount = facetResult.uniqueVisitorsCount[0]?.count || 0;
+
+    return {
+      totalClicks: record.totalClicks,
+      uniqueVisitors: uniqueCount,
+      topBrowsers: facetResult.topBrowsers,
+      topReferrer: facetResult.topReferrer,
+    };
+  }
+
+  static async deactivateUrlService(shortCode) {
+    const record = await Url.findOneAndUpdate(
+      { shortCode, isActive: true },
+      { isActive: false },
+      { new: true },
+    );
+
+    if (!record)
+      throw new AppError(
+        "URL not found or already deactivated",
+        404,
+        "URL_NOT_FOUND",
+      );
+
+    return record;
+  }
+
   //   END OF CLASS
 }
