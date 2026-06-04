@@ -22,8 +22,18 @@ export const createShortUrl = asyncHandler(async (req, res) => {
 
 export const handleRedirect = asyncHandler(async (req, res) => {
   const { shortCode } = req.params;
+  const requestDetails = {
+    ip: req.ip || req.headers["x-forwarded-for"],
+    userAgent: req.headers["user-agent"],
+    referrer: req.headers["referer"],
+  };
 
-  const destinationUrl = await UrlService.resolveAndProcessRedirect(shortCode);
+  console.log("handle REdirect controller: ", requestDetails);
+
+  const destinationUrl = await UrlService.resolveAndProcessRedirect(
+    shortCode,
+    requestDetails,
+  );
 
   return res.redirect(302, destinationUrl);
 });
