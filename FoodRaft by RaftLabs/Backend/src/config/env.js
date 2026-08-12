@@ -8,6 +8,8 @@ const envSchema = z.object({
   PORT: z.string().transform((val) => parseInt(val, 10)),
   APP_BASE_URL: z.string().url(),
   MONGO_URI: z.string().url(),
+  JWT_SECRET: z.string(),
+  SESSION_SECRET: z.string(),
 });
 
 const envParseResult = envSchema.safeParse(process.env);
