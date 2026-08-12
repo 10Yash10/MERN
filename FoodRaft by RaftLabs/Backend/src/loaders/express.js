@@ -4,6 +4,8 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { errorHandler } from "../middlewares/errorHandler.js";
 import AuthRoute from "../module/foodraft/routes/auth.routes.js";
+import MenuRoute from "../module/foodraft/routes/menu.routes.js";
+import CartRoute from "../module/foodraft/routes/cart.routes.js";
 import { config } from "../config/env.js";
 
 export default async (app) => {
@@ -11,7 +13,13 @@ export default async (app) => {
   app.head("/health", (req, res) => res.status(200).end());
 
   // middlewares
-  app.use(cors());
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+      withCredentials: true,
+    }),
+  );
+
   app.use(express.json());
   app.use(
     session({
@@ -34,6 +42,8 @@ export default async (app) => {
 
   // routes
   app.use("/api/auth", AuthRoute);
+  app.use("/api", MenuRoute);
+  app.use("/api", CartRoute);
 
   // global error handler.
   app.use(errorHandler);

@@ -1,0 +1,16 @@
+###
+
+GET  http://localhost:3000/api/cart
+
+###
+
+POST http://localhost:3000/api/cart
+Content-Type: application/json
+
+{
+    "productId": "6a7c5848c74ccab324d399e4",
+    "name": "reek Feta Salad",
+    "quantity": "1",
+    "price": "219",
+    "isAvailable": true
+}
