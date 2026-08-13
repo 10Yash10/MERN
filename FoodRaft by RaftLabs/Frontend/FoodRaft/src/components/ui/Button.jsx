@@ -1,0 +1,92 @@
+import { motion } from "framer-motion";
+
+export const FillButton = ({ text, style, isLoading, ...props }) => {
+  return (
+    <motion.button
+      className={`relative px-6 py-3 font-semibold text-black border border-black overflow-hidden cursor-pointer ${style}`}
+      whileHover="hover"
+      initial="initial"
+      {...props}
+    >
+      {/* Filling background layer */}
+      <motion.div
+        className="absolute inset-0 bg-black z-0"
+        variants={{
+          initial: { width: "0%" },
+          hover: { width: "100%" },
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      />
+
+      {/* Button text (must have z-index to stay visible) */}
+      {!isLoading ? (
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="w-4 h-4 rounded-full border-t-2 border-t-black bg-white animate-spin" />
+        </div>
+      ) : (
+        <motion.span
+          className="relative z-10 block"
+          variants={{
+            initial: { color: "#000000" },
+            hover: { color: "#ffffff" },
+          }}
+        >
+          {text ? text : "Hover Me"}
+        </motion.span>
+      )}
+    </motion.button>
+  );
+};
+
+export const UnderlineButton = ({ onClick, children, disabled, width }) => {
+  return (
+    <motion.button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: width,
+        background: "none",
+        border: "none",
+        padding: "8px 16px",
+        fontSize: "16px",
+        // fontWeight: "semibold",
+        cursor: "pointer",
+        position: "relative",
+        outline: "none",
+        color: "oklch(20.5% 0 none)",
+      }}
+      className="font-semibold"
+      whileHover="hover"
+      initial="initial"
+    >
+      {/* button text */}
+      <motion.span
+        variants={{
+          initial: { opacity: 0.85 },
+          hover: { opacity: 1 },
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        {children}
+      </motion.span>
+
+      {/* 2. The Animated Underline */}
+      <motion.div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "1px", // Thickness of the underline
+          backgroundColor: "oklch(20.5% 0 none)", // Underline color (e.g., beautiful blue)
+          originX: 0, // Makes the animation start growing from the left side
+        }}
+        variants={{
+          initial: { scaleX: 0 }, // Unfilled state
+          hover: { scaleX: 1 }, // Filled state on hover
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      />
+    </motion.button>
+  );
+};

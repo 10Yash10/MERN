@@ -1,0 +1,14 @@
+import { Outlet, Navigate } from "react-router-dom";
+import { useGetMeQuery } from "../../features/auth/auth";
+
+export const PrivateRoutes = () => {
+  const { data, loading } = useGetMeQuery();
+  return data ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
+export const PublicRoutes = () => {
+  const { data, loading } = useGetMeQuery();
+
+  console.log(data);
+  return !data ? <Outlet /> : <Navigate to="/menu" replace />;
+};
