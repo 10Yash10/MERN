@@ -4,10 +4,10 @@ POST http://localhost:3000/api/auth/register
 Content-Type: application/json
 
 {
-    "username": "Nitish",
-    "email": "nitish@gmail.com",
-    "password": "N!t!sh020",
-    "phone": "1234567899"
+    "username": "Diksha",
+    "email": "diksha@gmail.com",
+    "password": "Diksh@123",
+    "phone": "6203319626"
 }
 
 
