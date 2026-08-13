@@ -216,7 +216,7 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
     try {
       const response = await completeOrder(formData).unwrap();
 
-      console.log("Order completed:", response);
+      // console.log("Order completed:", response);
 
       // Clear form
       await clearCartById({ userId: id }).unwrap();

@@ -11,6 +11,7 @@ function App() {
     <Routes>
       {/* Public Routes */}
       <Route element={<PublicRoutes />}>
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
       </Route>
 
@@ -21,6 +22,8 @@ function App() {
           <Route path="/order" element={<Order />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<div>not found</div>} />
     </Routes>
   );
 }
