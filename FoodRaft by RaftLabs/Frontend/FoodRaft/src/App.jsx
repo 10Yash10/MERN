@@ -3,8 +3,8 @@ import { PrivateRoutes, PublicRoutes } from "./components/routes/RouteGuard";
 import Login from "./pages/auth/Login";
 import Menu from "./pages/user/Menu";
 import Cart from "./pages/user/Cart";
-import Checkout from "./pages/user/Checkout";
 import RootLayout from "./components/layout/RootLayout";
+import Order from "./pages/user/Order";
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         <Route element={<PrivateRoutes />}>
           <Route path="/menu" element={<Menu />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order" element={<Order />} />
         </Route>
       </Route>
     </Routes>

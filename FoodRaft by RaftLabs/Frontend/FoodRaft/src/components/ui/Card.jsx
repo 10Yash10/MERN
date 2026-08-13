@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
 
 const Card = ({
   image,
@@ -6,6 +7,7 @@ const Card = ({
   description,
   price,
   u_key,
+  index,
   cartData = [],
   handleAddUpdateToCart,
   handleQuantityUpdate,
@@ -72,9 +74,14 @@ const Card = ({
   };
 
   return (
-    <div
+    <motion.div
       key={u_key}
       className="border border-neutral-900 w-76 min-h-96 h-auto flex flex-col"
+      initial={{ y: 40, opacity: 0 }}
+      whileInView={{ y: 0, opacity: 1 }}
+      transition={{ delay: 0.2, duration: 0.7 }}
+      viewport={{ once: true }}
+      key={cartData.productId}
     >
       <img
         className="w-full h-[70%] bg-yellow-500 object-fill"
@@ -127,7 +134,7 @@ const Card = ({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
