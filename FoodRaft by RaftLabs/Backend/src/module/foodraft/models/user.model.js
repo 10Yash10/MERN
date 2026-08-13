@@ -47,22 +47,22 @@ const userSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Pre-save middleware: Hashes the password before saving to MongoDB
-userSchema.pre("save", async function (next) {
-  // Only hash the password if it has been modified or is new
-  if (!this.isModified("password")) {
-    return next();
-  }
+// hash password, not working because of save,,,,,
+// userSchema.pre("save", async function (next) {
+//   // Only hash the password if it has been modified or is new
+//   if (!this.isModified("password")) {
+//     return next();
+//   }
 
-  try {
-    // Hash the password using Argon2id (default)
-    // Argon2 automatically handles salt generation and embedding
-    this.password = await argon2.hash(this.password);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+//   try {
+//     // Hash the password using Argon2id (default)
+//     // Argon2 automatically handles salt generation and embedding
+//     this.password = await argon2.hash(this.password);
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 const User = mongoose.model("User", userSchema);
 

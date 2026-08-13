@@ -6,6 +6,7 @@ import { errorHandler } from "../middlewares/errorHandler.js";
 import AuthRoute from "../module/foodraft/routes/auth.routes.js";
 import MenuRoute from "../module/foodraft/routes/menu.routes.js";
 import CartRoute from "../module/foodraft/routes/cart.routes.js";
+import OrderRoute from "../module/foodraft/routes/order.routes.js";
 import { config } from "../config/env.js";
 
 export default async (app) => {
@@ -44,6 +45,7 @@ export default async (app) => {
   app.use("/api/auth", AuthRoute);
   app.use("/api", MenuRoute);
   app.use("/api", CartRoute);
+  app.use("/api", OrderRoute);
 
   // global error handler.
   app.use(errorHandler);
