@@ -1,0 +1,18 @@
+###
+
+POST http://localhost:3000/api/order
+Content-Type: application/json
+
+{
+    "deliveryDetails": {
+        "name": "Yash Sharma",
+        "phone": "7310665592",
+        "address": {
+            "line1": "ABC Street",
+            "line2":"",
+            "city": "Noida",
+            "state": "Uttar Pradesh",
+            "postalCode": "201301"
+        }
+    }
+}
