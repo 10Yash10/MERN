@@ -23,3 +23,13 @@ Content-Type: application/json
 {
     "productId": "6a7c5848c74ccab324d399e4"
 }
+
+
+###
+
+DELETE http://localhost:3000/api/cart/all
+Content-Type: application/json
+
+{
+    "userId": "6a7d92f58944a3892215af6c"
+}

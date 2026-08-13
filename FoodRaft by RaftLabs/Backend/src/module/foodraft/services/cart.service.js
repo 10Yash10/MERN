@@ -11,8 +11,6 @@ export class CartServices {
   }
 
   static async addToCart(id, productId, name, quantity, price, isAvailable) {
-    // console.log(id, productId, name, quantity, price, isAvailable);
-
     const item = await Cart.findOneAndUpdate(
       {
         userId: id,
@@ -36,6 +34,13 @@ export class CartServices {
 
     if (item) return true;
     else return false;
+  }
+
+  static async clearCartById(id) {
+    const deleted = await Cart.deleteMany({ userId: id });
+    if (deleted) {
+      return true;
+    }
   }
   // end //
 }

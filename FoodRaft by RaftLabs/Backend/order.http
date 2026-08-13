@@ -1,5 +1,15 @@
 ###
+GET http://localhost:3000/api/orders
+Content-Type: application/json
 
+{
+    "userId": "6a7d92f58944a3892215af6c"
+}
+
+###
+GET http://localhost:3000/api/getBill
+
+###
 POST http://localhost:3000/api/order
 Content-Type: application/json
 

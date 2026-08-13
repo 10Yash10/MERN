@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { UnderlineButton } from "../ui/Button";
 import { useGetMeQuery } from "../../features/auth/auth";
 import { motion } from "motion/react";
 import Loader from "./Loader";
 import { useGetCartQuery } from "../../features/cart/cart";
+import { useGetOrdersByIdQuery } from "../../features/order/order";
 
 const RootLayout = () => {
   const { data, isLoading } = useGetMeQuery();
   const { data: cartData } = useGetCartQuery();
+  const { data: orderData } = useGetOrdersByIdQuery();
 
-  //   console.log(cartData.length);
-
-  const [cartCount, setCartCount] = useState(cartData?.length ?? 0);
+  const navigate = useNavigate();
 
   const loading = isLoading;
   const name = data?.email?.split("")[0].toUpperCase();
@@ -27,7 +27,7 @@ const RootLayout = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ delay: 0.3, duration: 0.7 }}
-        className="h-[10vh] w-full bg-neutral-900 flex items-center justify-between px-6 fixed top-0 shadow-lg"
+        className="h-[10vh] w-full bg-neutral-900 flex items-center justify-between px-6 fixed top-0 shadow-lg z-50"
       >
         <motion.h1
           initial={{ x: -30, opacity: 0 }}
@@ -45,16 +45,25 @@ const RootLayout = () => {
           transition={{ delay: 0.7, duration: 0.4 }}
           className="w-full h-full flex items-center justify-center gap-6 "
         >
-          <UnderlineButton color="white">Menu</UnderlineButton>
-          <UnderlineButton color="white">
+          <UnderlineButton onClick={() => navigate("/menu")} color="white">
+            Menu
+          </UnderlineButton>
+          <UnderlineButton onClick={() => navigate("/cart")} color="white">
             <div className="flex gap-2 items-center">
               Cart
-              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-neutral-900">
-                {cartCount}
+              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-neutral-900 text-xs">
+                {cartData?.length ?? 0}
               </div>
             </div>
           </UnderlineButton>
-          <UnderlineButton color="white">Order</UnderlineButton>
+          <UnderlineButton onClick={() => navigate("/order")} color="white">
+            <div className="flex gap-2 items-center">
+              Order
+              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-neutral-900 text-xs">
+                {orderData?.length ?? 0}
+              </div>
+            </div>
+          </UnderlineButton>
         </motion.div>
 
         {/* Profile */}

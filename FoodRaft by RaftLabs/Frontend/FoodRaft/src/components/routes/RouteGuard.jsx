@@ -9,6 +9,5 @@ export const PrivateRoutes = () => {
 export const PublicRoutes = () => {
   const { data, loading } = useGetMeQuery();
 
-  console.log(data);
   return !data ? <Outlet /> : <Navigate to="/menu" replace />;
 };

@@ -13,8 +13,6 @@ export const addToCart = asyncWrapper(async (req, res) => {
   const { id } = req.user;
   const body = { userId: id, ...req.body };
 
-  //   console.log(body);
-
   //   validate body
   const validatedBody = cartSchema.parse(body);
   const { productId, name, quantity, price, isAvailable } = validatedBody;
@@ -43,4 +41,12 @@ export const deleteFromCart = asyncWrapper(async (req, res) => {
   } else {
     return res.status(500).json({ message: "Cannot Remove from Cart." });
   }
+});
+
+export const clearCartById = asyncWrapper(async (req, res) => {
+  const { id } = req.user;
+
+  const data = await CartServices.clearCartById(id);
+
+  return res.status(200).json({ success: data });
 });

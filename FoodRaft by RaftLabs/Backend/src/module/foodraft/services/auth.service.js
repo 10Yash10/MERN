@@ -6,8 +6,6 @@ import { config } from "../../../config/env.js";
 
 export class AuthService {
   static async register(username, email, password, phone) {
-    console.log(username, email, password, phone);
-
     const hashedPassword = await argon2.hash(password);
 
     const user = await User.findOneAndUpdate(

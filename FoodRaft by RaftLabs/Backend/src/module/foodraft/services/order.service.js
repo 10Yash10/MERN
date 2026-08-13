@@ -5,6 +5,67 @@ import { Types } from "mongoose";
 import NotFoundError from "../../../shared/errors/not-found-error.js";
 
 export class OrderServices {
+  static async getOrdersById(userId) {
+    const orders = await Order.find({ userId });
+
+    return orders;
+  }
+
+  static async getBill(userId) {
+    // Constant values
+    const deliveryFee = 40;
+    const discount = 0;
+    const gst = 7; // percentage
+
+    // Get cart items and calculate subtotal
+    const cartItemPrice = await Cart.aggregate([
+      {
+        $match: {
+          userId: new Types.ObjectId(userId),
+        },
+      },
+      {
+        $group: {
+          _id: "$userId",
+          subTotal: {
+            $sum: {
+              $multiply: ["$price", "$quantity"],
+            },
+          },
+        },
+      },
+    ]);
+
+    // If cart is empty
+    if (!cartItemPrice.length) {
+      return {
+        subTotal: 0,
+        deliveryFee: 0,
+        tax: 0,
+        discount: 0,
+        total: 0,
+      };
+    }
+
+    // Get subtotal
+    const subTotal = cartItemPrice[0].subTotal;
+
+    // Calculate GST
+    const tax = (subTotal * gst) / 100;
+
+    // Calculate total
+    const total = subTotal + tax + deliveryFee - discount;
+
+    // Return complete bill
+    return {
+      subTotal,
+      deliveryFee,
+      tax,
+      discount,
+      total,
+    };
+  }
+
   static async createOrder(userId, deliveryDetails) {
     // constatn values:
     const deliveryFee = 40;
@@ -17,7 +78,6 @@ export class OrderServices {
     const cartItems = await Cart.find({ userId });
 
     if (!cartItems) {
-      console.log(cartItems);
       throw new NotFoundError("Items not found");
       return false;
     }
@@ -56,6 +116,6 @@ export class OrderServices {
       //   ],
     });
 
-    console.log(createdOrder);
+    return createdOrder;
   }
 }

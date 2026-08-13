@@ -40,7 +40,7 @@ const Menu = () => {
         isAvailable: true,
       }).unwrap();
 
-      console.log("Product added:", res);
+      // console.log("Product added:", res);
     } catch (err) {
       console.error("Failed to add product:", err);
     }
@@ -60,7 +60,7 @@ const Menu = () => {
         isAvailable: true,
       }).unwrap();
 
-      console.log("Quantity updated:", res);
+      // console.log("Quantity updated:", res);
     } catch (err) {
       console.error("Failed to update quantity:", err);
     }
@@ -72,13 +72,13 @@ const Menu = () => {
 
   const handleRemoveFromCart = async (productId) => {
     try {
-      console.log("Removing product:", productId);
+      // console.log("Removing product:", productId);
 
       const res = await removeFromCart({
         productId,
       }).unwrap();
 
-      console.log("Product removed:", res);
+      // console.log("Product removed:", res);
     } catch (err) {
       console.error("Failed to remove product:", err);
     }
@@ -90,7 +90,7 @@ const Menu = () => {
 
       <div className="flex justify-center gap-6 flex-wrap">
         {data?.map(
-          (item) =>
+          (item, index) =>
             item.isAvailable && (
               <Card
                 key={item._id}
@@ -99,6 +99,7 @@ const Menu = () => {
                 name={item.name}
                 price={item.price}
                 description={item.description}
+                index={index}
                 cartData={cartData}
                 handleAddUpdateToCart={handleAddUpdateToCart}
                 handleQuantityUpdate={handleQuantityUpdate}
