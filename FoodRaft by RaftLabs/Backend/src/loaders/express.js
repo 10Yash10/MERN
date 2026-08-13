@@ -16,7 +16,7 @@ export default async (app) => {
   // middlewares
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: config.APP_BASE_URL || "http://localhost:5173",
       credentials: true,
     }),
   );
@@ -36,6 +36,7 @@ export default async (app) => {
       cookie: {
         secure: config.NODE_ENV === "production" ? true : false,
         httpOnly: true,
+        sameSite: "lax",
         maxAge: 7000 * 60 * 60 * 24,
       },
     }),

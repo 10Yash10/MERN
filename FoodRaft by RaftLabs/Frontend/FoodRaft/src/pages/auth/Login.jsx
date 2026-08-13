@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InputBox from "../../components/ui/InputBox";
 import { FillButton, UnderlineButton } from "../../components/ui/Button";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useMouseMovement } from "../../components/animations/mouseMovement";
 import {
   useLoginMutation,
@@ -9,99 +9,196 @@ import {
 } from "../../features/auth/auth";
 
 const Login = () => {
-  const { x, y } = useMouseMovement();
-  const [login, { isLoading }] = useLoginMutation();
-  const [
-    register,
-    {
-      isLoading: isRegisterLoading,
-      //   isError: isRegisterError,
-      //   error: registerError,
-    },
-  ] = useRegisterMutation();
+  // HOOKS
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
+  const { x, y } = useMouseMovement();
+
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+
+  const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
+
+  // STATE
+
   const [toggleForm, setToggleForm] = useState(false);
 
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    phone: "",
+  });
+
+  const [error, setError] = useState("");
+
+  // FORM VALUES
+
+  const { username, email, password, phone } = formData;
+
+  // RESET FORM
+
   useEffect(() => {
-    // setEmail("");
-    setPassword("");
-    // setUsername("");
-    // setPhone("");
+    setFormData((prev) => ({
+      ...prev,
+      password: "",
+    }));
+
     setError("");
   }, [toggleForm]);
 
-  const handleSubmit = async (e) => {
+  // INPUT HANDLER
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // PHONE HANDLER
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+
+    const onlyNumbers = value.replace(/\D/g, "");
+
+    if (onlyNumbers.length <= 10) {
+      setFormData((prev) => ({
+        ...prev,
+        phone: onlyNumbers,
+      }));
+    }
+  };
+
+  // API ERROR PARSER
+
+  const getErrorMessage = (error) => {
+    const message = error?.data?.message;
+
+    if (!message) {
+      return "Something went wrong. Please try again.";
+    }
+
+    // Backend returned validation errors as JSON string
+    if (typeof message === "string" && message.startsWith("[")) {
+      try {
+        const parsedMessage = JSON.parse(message);
+
+        if (Array.isArray(parsedMessage)) {
+          return parsedMessage.map((item) => item.message).join(", ");
+        }
+      } catch {
+        return message;
+      }
+    }
+
+    return message;
+  };
+
+  // LOGIN
+
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      setError("Email and Password is required.");
+    setError("");
+
+    if (!email.trim() || !password.trim()) {
+      setError("Email and Password are required.");
       return;
     }
 
     try {
-      const result = await login({ email, password });
+      await login({
+        email,
+        password,
+      }).unwrap();
 
-      if (result?.error?.data?.status === "error") {
-        const mes = result?.error?.data?.message;
-
-        if (!mes.includes("[")) {
-          setError(mes);
-          return;
-        }
-
-        const parsedMessage = JSON.parse(mes);
-
-        if (Array.isArray(parsedMessage)) {
-          const messages = parsedMessage.map((item) => item.message).toString();
-          setError(messages);
-        }
-        return;
-      }
+      // Login successful
+      // RTK Query / auth state can handle navigation
     } catch (err) {
-      setError(err);
+      setError(getErrorMessage(err));
     }
   };
+
+  // REGISTER
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!email || !password || !username || !phone) {
-      setError("Fields are required");
+    setError("");
+
+    if (
+      !username.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !phone.trim()
+    ) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (phone.length !== 10) {
+      setError("Phone number must be 10 digits.");
       return;
     }
 
     try {
-      const result = await register({ username, email, password, phone });
+      await register({
+        username,
+        email,
+        password,
+        phone,
+      }).unwrap();
 
-      if (result?.error?.data?.status === "error") {
-        const mes = result?.error?.data?.message;
-        const parsedMessage = JSON.parse(mes);
-
-        const messages = parsedMessage.map((item) => item.message).toString();
-        setError(messages);
-        return;
-      }
-
+      // Registration successful
+      // Switch to login
       setToggleForm(false);
+
+      // Optional: clear registration fields
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        phone: "",
+      });
     } catch (err) {
-      setError(err);
+      setError(getErrorMessage(err));
     }
   };
 
-  // form variants
-  const formVariants = {
-    hidden: { opacity: 0, x: toggleForm ? -50 : 50 }, // Enters from the side
-    visible: { opacity: 1, x: 0 }, // Centers on screen
-    exit: { opacity: 0, x: toggleForm ? 50 : -50 }, // Exits to the opposite side
+  // SWITCH FORM
+
+  const switchForm = (isRegister) => {
+    setError("");
+    setToggleForm(isRegister);
   };
+
+  // ANIMATION
+
+  const formVariants = {
+    initial: {
+      opacity: 0,
+      x: toggleForm ? 50 : -50,
+    },
+
+    animate: {
+      opacity: 1,
+      x: 0,
+    },
+
+    exit: {
+      opacity: 0,
+      x: toggleForm ? -50 : 50,
+    },
+  };
+
+  // RENDER
 
   return (
     <section className="w-screen h-screen flex overflow-hidden">
+      {/* LEFT SECTION */}
+
       <motion.div
         initial={{ x: -1200 }}
         animate={{ x: 0 }}
@@ -117,60 +214,78 @@ const Login = () => {
         >
           FoodRaft
         </motion.h1>
+
         <p className="text-xl font-extralight text-white">by</p>
+
         <h2 className="text-xl font-extralight text-white">RaftLabs</h2>
       </motion.div>
 
-      {/* login form wrapper */}
+      {/* RIGHT SECTION */}
+
       <motion.div
         initial={{ x: 500 }}
         animate={{ x: 0 }}
-        transition={{ delay: 0.3, duration: 0.7 }}
+        transition={{
+          delay: 0.3,
+          duration: 0.7,
+        }}
         className="w-[30%] h-auto flex items-center justify-center"
       >
         <AnimatePresence mode="wait">
           {!toggleForm ? (
+            /* LOGIN FORM */
+
             <motion.form
-              key="login-key"
+              key="login"
               variants={formVariants}
-              initial="hidden"
-              animate="visible"
+              initial="initial"
+              animate="animate"
               exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="px-6 w-full flex flex-col gap-4 "
-              onSubmit={handleSubmit}
+              transition={{
+                duration: 0.3,
+                ease: "easeInOut",
+              }}
+              className="px-6 w-full flex flex-col gap-4"
+              onSubmit={handleLogin}
             >
               <InputBox
+                name="email"
                 placeholder="Email"
                 type="email"
                 value={email}
-                onChange={(val) => setEmail(val.target.value)}
+                onChange={handleInputChange}
               />
+
               <InputBox
+                name="password"
                 placeholder="Password"
                 type="password"
                 value={password}
-                onChange={(val) => setPassword(val.target.value)}
+                onChange={handleInputChange}
               />
 
-              {error && <p className="text-sm text-red-500 ">{error}</p>}
+              {/* Error */}
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
               <FillButton
                 type="submit"
                 text="Login"
                 style="mt-4"
-                isLoading
-                disabled={isLoading}
+                isLoading={isLoginLoading}
+                disabled={isLoginLoading}
               />
 
+              {/* Switch */}
               <div className="flex items-center justify-center gap-4">
                 <p className="text-xs text-neutral-600">
                   Don't have an Account?
                 </p>
+
                 <UnderlineButton
                   width="100px"
                   onClick={(e) => {
                     e.preventDefault();
-                    setToggleForm(true);
+                    switchForm(true);
                   }}
                 >
                   Register
@@ -178,65 +293,75 @@ const Login = () => {
               </div>
             </motion.form>
           ) : (
+            /* REGISTER FORM */
+
             <motion.form
-              key="register-key"
+              key="register"
               variants={formVariants}
-              initial="hidden"
-              animate="visible"
+              initial="initial"
+              animate="animate"
               exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="px-6 w-full flex flex-col gap-4 "
+              transition={{
+                duration: 0.3,
+                ease: "easeInOut",
+              }}
+              className="px-6 w-full flex flex-col gap-4"
               onSubmit={handleRegister}
             >
               <InputBox
+                name="username"
                 placeholder="Username"
                 type="text"
                 value={username}
-                onChange={(val) => setUsername(val.target.value)}
+                onChange={handleInputChange}
               />
+
               <InputBox
+                name="email"
                 placeholder="Email"
                 type="email"
                 value={email}
-                onChange={(val) => setEmail(val.target.value)}
+                onChange={handleInputChange}
               />
+
               <InputBox
+                name="password"
                 placeholder="Password"
                 type="password"
                 value={password}
-                onChange={(val) => setPassword(val.target.value)}
+                onChange={handleInputChange}
               />
+
               <InputBox
+                name="phone"
                 placeholder="Phone"
                 type="text"
                 value={phone}
-                onChange={(val) => {
-                  const input = val.target.value;
-                  const onlyNums = input.replace(/[^0-9]/g, "");
-                  if (onlyNums.length <= 10) {
-                    setPhone(onlyNums);
-                  }
-                }}
+                onChange={handlePhoneChange}
               />
 
-              {error && <p className="text-sm text-red-500 ">{error}</p>}
+              {/* Error */}
+              {error && <p className="text-sm text-red-500">{error}</p>}
+
               <FillButton
                 type="submit"
                 text="Register"
                 style="mt-4"
-                isLoading
-                disabled={isLoading}
+                isLoading={isRegisterLoading}
+                disabled={isRegisterLoading}
               />
 
+              {/* Switch */}
               <div className="flex items-center justify-center gap-4">
-                <p className="text-xs  text-neutral-600 ">
-                  Aready Have an Account?
+                <p className="text-xs text-neutral-600">
+                  Already Have an Account?
                 </p>
+
                 <UnderlineButton
                   width="100px"
                   onClick={(e) => {
                     e.preventDefault();
-                    setToggleForm(false);
+                    switchForm(false);
                   }}
                 >
                   Login
