@@ -6,6 +6,6 @@ export const apiSlice = createApi({
     baseUrl: import.meta.env.VITE_BASE_URL,
     credentials: "include",
   }),
-  tagTypes: ["Auth"],
+  tagTypes: ["Auth", "Menu", "Cart"],
   endpoints: () => ({}),
 });
