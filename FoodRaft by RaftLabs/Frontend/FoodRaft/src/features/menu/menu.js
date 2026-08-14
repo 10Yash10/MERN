@@ -6,7 +6,13 @@ export const menuApi = apiSlice.injectEndpoints({
       query: () => "/menu",
       providesTags: ["Menu"],
     }),
+    getMenuItemById: builder.query({
+      query: (credentials) => ({
+        url: `/menu/${credentials}`,
+      }),
+      providesTags: ["Menu"],
+    }),
   }),
 });
 
-export const { useGetMenuQuery } = menuApi;
+export const { useGetMenuQuery, useGetMenuItemByIdQuery } = menuApi;

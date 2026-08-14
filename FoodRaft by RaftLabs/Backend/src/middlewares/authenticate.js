@@ -3,8 +3,6 @@ import jwt from "jsonwebtoken";
 import { config } from "../config/env.js";
 
 export const authenticateToken = (req, res, next) => {
-
-  console.log("req.session data: ", req.session)
   if (!req.session || !req.session.userToken)
     throw new UnauthorizedError("Unauthorized. Session not found.");
 

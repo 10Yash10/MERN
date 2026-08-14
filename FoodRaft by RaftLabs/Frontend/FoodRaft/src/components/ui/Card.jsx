@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { MiniLoader } from "../layout/Loader";
+import { useNavigate } from "react-router-dom";
 
 const Card = ({
   image,
@@ -15,6 +16,7 @@ const Card = ({
   handleQuantityUpdate,
   handleRemoveFromCart,
 }) => {
+  const navigate = useNavigate();
   const cartItem = cartData.find((item) => item.productId === u_key);
 
   const quantityFetched = cartItem?.quantity;
@@ -31,11 +33,11 @@ const Card = ({
 
   const isInCart = Boolean(cartItem);
 
-  const handleIncrease = () => {
+  const handleIncrease = (e) => {
+    e.stopPropagation(); // Stop navigation trigger
     if (isLoading) return;
 
     const newQuantity = quantity + 1;
-
     setQuantity(newQuantity);
 
     handleQuantityUpdate({
@@ -46,7 +48,8 @@ const Card = ({
     });
   };
 
-  const handleDecrease = () => {
+  const handleDecrease = (e) => {
+    e.stopPropagation(); // Stop navigation trigger
     if (isLoading) return;
 
     if (quantity === 1) {
@@ -55,7 +58,6 @@ const Card = ({
     }
 
     const newQuantity = quantity - 1;
-
     setQuantity(newQuantity);
 
     handleQuantityUpdate({
@@ -66,7 +68,8 @@ const Card = ({
     });
   };
 
-  const handleAdd = () => {
+  const handleAdd = (e) => {
+    e.stopPropagation(); // Fixed typo here (stopPropogation -> stopPropagation)
     if (isLoading) return;
 
     handleAddUpdateToCart({
@@ -79,7 +82,9 @@ const Card = ({
 
   return (
     <motion.div
-      className="border border-neutral-900 w-76 min-h-96 h-auto flex flex-col group cursor-pointer hover:-translate-y-2 hover:shadow-sm hover:shadow-black duration-300"
+      aria-label="button"
+      onClick={() => navigate(`/menu/${u_key}`)}
+      className="border border-neutral-900 w-76 min-h-96 h-auto flex flex-col group cursor-pointer hover:-translate-y-1 hover:shadow-sm hover:shadow-black duration-300"
       initial={{ y: 40, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.2, duration: 0.7 }}
@@ -102,7 +107,10 @@ const Card = ({
           <h1 className="text-xl">${price}</h1>
 
           {isInCart ? (
-            <div className="flex items-center">
+            <div
+              className="flex items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 disabled={isLoading}
                 onClick={handleDecrease}

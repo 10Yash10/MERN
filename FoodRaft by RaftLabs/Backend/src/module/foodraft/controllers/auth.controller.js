@@ -36,8 +36,6 @@ export const login = asyncWrapper(async (req, res) => {
   // store in session
   req.session.userToken = data;
 
-  console.log("session saved", req.session);
-
   res.status(200).json({ success: true, message: "Login Successfull" });
 });
 
