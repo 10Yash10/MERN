@@ -8,7 +8,9 @@ async function startServer() {
   await loaders(app);
 
   app.listen(config.PORT, () =>
-    console.log(`Server running on ${config.PORT}`),
+    config.NODE_ENV === "production"
+      ? console.log("Service is running")
+      : console.log(`Server running on ${config.PORT}`),
   );
 }
 
