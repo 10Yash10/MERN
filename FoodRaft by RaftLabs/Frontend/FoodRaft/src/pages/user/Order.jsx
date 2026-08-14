@@ -6,9 +6,7 @@ import Loader from "../../components/layout/Loader";
 const Order = () => {
   const { data: orders = [], isLoading, isError } = useGetOrdersByIdQuery();
 
-  // -----------------------------------------
   // FORMAT DATE
-  // -----------------------------------------
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-IN", {
@@ -25,17 +23,13 @@ const Order = () => {
     });
   };
 
-  // -----------------------------------------
   // LOADING
-  // -----------------------------------------
 
   if (isLoading) {
     return <Loader />;
   }
 
-  // -----------------------------------------
   // ERROR
-  // -----------------------------------------
 
   if (isError) {
     return (
@@ -51,9 +45,7 @@ const Order = () => {
     );
   }
 
-  // -----------------------------------------
   // EMPTY ORDERS
-  // -----------------------------------------
 
   if (!orders.length) {
     return (
@@ -78,9 +70,7 @@ const Order = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto pb-20">
-      {/* ----------------------------------------- */}
       {/* PAGE HEADER */}
-      {/* ----------------------------------------- */}
 
       <motion.div
         initial={{ opacity: 0, y: -25 }}
@@ -97,9 +87,7 @@ const Order = () => {
         </p>
       </motion.div>
 
-      {/* ----------------------------------------- */}
       {/* ORDERS */}
-      {/* ----------------------------------------- */}
 
       <div className="flex flex-col gap-8">
         {orders.map((order, index) => (
@@ -119,9 +107,7 @@ const Order = () => {
             }}
             className="w-full border border-neutral-900 bg-white"
           >
-            {/* ----------------------------------------- */}
             {/* ORDER HEADER */}
-            {/* ----------------------------------------- */}
 
             <div className="bg-neutral-900 text-white p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
@@ -152,14 +138,10 @@ const Order = () => {
               </div>
             </div>
 
-            {/* ----------------------------------------- */}
             {/* ORDER CONTENT */}
-            {/* ----------------------------------------- */}
 
             <div className="p-6">
-              {/* ----------------------------------------- */}
               {/* ITEMS */}
-              {/* ----------------------------------------- */}
 
               <div>
                 <h3 className="text-xl font-bold text-neutral-900 mb-4">
@@ -217,14 +199,10 @@ const Order = () => {
                 </div>
               </div>
 
-              {/* ----------------------------------------- */}
               {/* BOTTOM SECTION */}
-              {/* ----------------------------------------- */}
 
               <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* ----------------------------------------- */}
                 {/* DELIVERY DETAILS */}
-                {/* ----------------------------------------- */}
 
                 <div className="border border-neutral-200 p-5">
                   <h3 className="text-xl font-bold text-neutral-900 mb-5">
@@ -279,9 +257,7 @@ const Order = () => {
                   </div>
                 </div>
 
-                {/* ----------------------------------------- */}
                 {/* BILL */}
-                {/* ----------------------------------------- */}
 
                 <div className="border border-neutral-200 p-5">
                   <h3 className="text-xl font-bold text-neutral-900 mb-5">
@@ -332,9 +308,7 @@ const Order = () => {
                 </div>
               </div>
 
-              {/* ----------------------------------------- */}
               {/* STATUS HISTORY */}
-              {/* ----------------------------------------- */}
 
               {order.statusHistory?.length > 0 && (
                 <div className="mt-8 border-t border-neutral-200 pt-6">

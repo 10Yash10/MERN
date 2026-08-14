@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { MiniLoader } from "../layout/Loader";
 
 const Card = ({
   image,
@@ -8,34 +9,31 @@ const Card = ({
   price,
   u_key,
   index,
+  isLoading,
   cartData = [],
   handleAddUpdateToCart,
   handleQuantityUpdate,
   handleRemoveFromCart,
 }) => {
-  // Find this product in cart
   const cartItem = cartData.find((item) => item.productId === u_key);
 
-  // Get quantity from cart
   const quantityFetched = cartItem?.quantity;
 
-  // Local quantity state
-  const [quantity, setQuantity] = useState(quantityFetched || 1);
+  const [quantity, setQuantity] = useState(
+    quantityFetched !== undefined ? Number(quantityFetched) : 1,
+  );
 
-  // Sync local quantity with cart data
   useEffect(() => {
     if (quantityFetched !== undefined) {
       setQuantity(Number(quantityFetched));
     }
   }, [quantityFetched]);
 
-  const productIdsInCart = cartData.map((item) => item.productId);
-
-  // -----------------------------------------
-  // INCREASE QUANTITY
-  // -----------------------------------------
+  const isInCart = Boolean(cartItem);
 
   const handleIncrease = () => {
+    if (isLoading) return;
+
     const newQuantity = quantity + 1;
 
     setQuantity(newQuantity);
@@ -48,19 +46,14 @@ const Card = ({
     });
   };
 
-  // -----------------------------------------
-  // DECREASE / REMOVE
-  // -----------------------------------------
-
   const handleDecrease = () => {
-    // If quantity is 1,
-    // remove the product completely from cart
+    if (isLoading) return;
+
     if (quantity === 1) {
       handleRemoveFromCart(u_key);
       return;
     }
 
-    // Otherwise decrease quantity
     const newQuantity = quantity - 1;
 
     setQuantity(newQuantity);
@@ -73,63 +66,70 @@ const Card = ({
     });
   };
 
+  const handleAdd = () => {
+    if (isLoading) return;
+
+    handleAddUpdateToCart({
+      productId: u_key,
+      name,
+      quantity,
+      price,
+    });
+  };
+
   return (
     <motion.div
-      key={u_key}
-      className="border border-neutral-900 w-76 min-h-96 h-auto flex flex-col"
+      className="border border-neutral-900 w-76 min-h-96 h-auto flex flex-col group cursor-pointer hover:-translate-y-2 hover:shadow-sm hover:shadow-black duration-300"
       initial={{ y: 40, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.2, duration: 0.7 }}
       viewport={{ once: true }}
-      key={cartData.productId}
     >
-      <img
-        className="w-full h-[70%] bg-yellow-500 object-fill"
-        src={image}
-        alt={name}
-      />
+      <div className="w-full h-[70%] overflow-hidden">
+        <img
+          className="w-full h-full object-cover group-hover:scale-125 duration-300"
+          src={image}
+          alt={name}
+        />
+      </div>
 
       <div className="w-full h-auto bg-neutral-900 text-white flex flex-col p-4">
         <h1 className="text-xl">{name}</h1>
 
         <p className="text-sm text-white/70">{description}</p>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4 mt-3">
           <h1 className="text-xl">${price}</h1>
 
-          {productIdsInCart.includes(u_key) ? (
+          {isInCart ? (
             <div className="flex items-center">
               <button
+                disabled={isLoading}
                 onClick={handleDecrease}
-                className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300"
+                className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 -
               </button>
 
-              <div className="w-full h-full border-b border-t border-white">
-                <p className="mx-4 py-2">{quantity}</p>
+              <div className="h-full min-w-12 border-b border-t border-white flex items-center justify-center">
+                <p className="px-3 py-2">{quantity}</p>
               </div>
 
               <button
+                disabled={isLoading}
                 onClick={handleIncrease}
-                className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300"
+                className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 +
               </button>
             </div>
           ) : (
             <button
-              onClick={() =>
-                handleAddUpdateToCart({
-                  productId: u_key,
-                  name,
-                  quantity,
-                  price,
-                })
-              }
-              className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300"
+              disabled={isLoading}
+              onClick={handleAdd}
+              className="min-w-20 h-10 px-4 py-2 border border-white flex items-center justify-center cursor-pointer hover:bg-white/30 duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add
+              {isLoading ? <MiniLoader theme="dark" /> : "Add"}
             </button>
           )}
         </div>

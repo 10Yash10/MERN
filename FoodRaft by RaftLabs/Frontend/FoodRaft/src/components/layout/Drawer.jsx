@@ -37,9 +37,7 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
     postalCode: "",
   });
 
-  // -----------------------------------------
   // HANDLE INPUT CHANGE
-  // -----------------------------------------
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -155,9 +153,7 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
     }));
   };
 
-  // -----------------------------------------
   // RESET FORM
-  // -----------------------------------------
 
   const resetForm = () => {
     setFormData(initialFormData);
@@ -168,9 +164,7 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
     });
   };
 
-  // -----------------------------------------
   // SUBMIT ORDER
-  // -----------------------------------------
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -209,9 +203,7 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
       return;
     }
 
-    // -----------------------------------------
     // CALL API
-    // -----------------------------------------
 
     try {
       const response = await completeOrder(formData).unwrap();
@@ -375,8 +367,9 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
                   }}
                 >
                   <FillButton
+                    theme="dark"
                     type="submit"
-                    text={isLoading ? "Completing..." : "Complete Order"}
+                    text={"Complete Order"}
                     disabled={isLoading}
                     isLoading={isLoading}
                   />

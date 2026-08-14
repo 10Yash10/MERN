@@ -3,12 +3,8 @@ import { apiSlice } from "../../api/api";
 export const orderApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getOrdersById: builder.query({
-      query: (credentials) => ({
-        url: "/orders",
-        method: "GET",
-        body: credentials,
-      }),
-      invalidatesTags: ["Order"],
+      query: () => "/orders",
+      providesTags: ["Order"],
     }),
     completeOrder: builder.mutation({
       query: (credentials) => ({

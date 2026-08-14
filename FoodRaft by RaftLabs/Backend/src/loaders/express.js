@@ -14,6 +14,7 @@ export default async (app) => {
   app.head("/health", (req, res) => res.status(200).end());
 
   // middlewares
+  app.set("trust proxy", 1);
   app.use(
     cors({
       origin: config.APP_BASE_URL || "http://localhost:5173",

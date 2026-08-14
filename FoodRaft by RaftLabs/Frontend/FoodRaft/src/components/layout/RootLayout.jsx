@@ -217,7 +217,7 @@ const RootLayout = () => {
 
       {/* MAIN */}
 
-      <main className="h-auto min-h-[90vh] p-6 mt-28">
+      <main className="h-auto min-h-[90vh] p-6 mt-20">
         <Outlet />
       </main>
 

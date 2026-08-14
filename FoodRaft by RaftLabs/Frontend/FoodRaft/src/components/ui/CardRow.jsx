@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import { UnderlineButton } from "./Button";
 import { motion } from "motion/react";
-import { useRemoveFromCartMutation } from "../../features/cart/cart";
+import {
+  useAddUpdateToCartMutation,
+  useRemoveFromCartMutation,
+} from "../../features/cart/cart";
+import Loader, { MiniLoader } from "../layout/Loader";
+import { useEffect } from "react";
 
 const CardRow = ({ cartData, index }) => {
+  console.log(cartData);
   const [quantity, setQuantity] = useState(cartData?.quantity);
+  const [addUpdateToCart, { isLoading: isAddingUpdating }] =
+    useAddUpdateToCartMutation();
   const [removeItem, { isLoading: isRemoving }] = useRemoveFromCartMutation();
 
   const handleRemove = async () => {
@@ -14,6 +22,27 @@ const CardRow = ({ cartData, index }) => {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    const handleFunction = async () => {
+      if (quantity >= 1) {
+        try {
+          await addUpdateToCart({
+            productId: cartData.productId,
+            name: cartData.name,
+            quantity: quantity.toString(),
+            price: cartData.price.toString(),
+            isAvailable: cartData.isAvailable,
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    console.log("useeffect");
+    handleFunction();
+  }, [quantity]);
 
   return (
     <motion.div
@@ -25,11 +54,12 @@ const CardRow = ({ cartData, index }) => {
       className="flex items-center justify-between border-b border-b-neutral-900 mb-6"
     >
       <div className="flex items-center gap-4">
-        <img
+        {/* <img
           className="w-20 h-20 bg-neutral-900"
           src={cartData.imageUrl}
           alt={cartData.name}
-        />
+        /> */}
+        <div className="w-7 h-20 bg-neutral-900" />
         <div>
           <h1 className="text-lg ">{cartData.name}</h1>
           <h2 className="text-lg ">${cartData.price}</h2>
@@ -38,7 +68,7 @@ const CardRow = ({ cartData, index }) => {
       <div className="flex gap-4">
         <div className="flex items-center">
           <button
-            //   onClick={handleDecrease}
+            onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}
             className="px-4 py-2 border border-neutral-900 cursor-pointer hover:bg-neutral-900 hover:text-white duration-300"
           >
             -
@@ -49,14 +79,16 @@ const CardRow = ({ cartData, index }) => {
           </div>
 
           <button
-            //   onClick={handleIncrease}
+            onClick={() => setQuantity(quantity + 1)}
             className="px-4 py-2 border border-neutral-900 cursor-pointer hover:bg-neutral-900 hover:text-white duration-300"
           >
             +
           </button>
         </div>
 
-        <UnderlineButton onClick={handleRemove}>remove</UnderlineButton>
+        <UnderlineButton onClick={handleRemove}>
+          {isRemoving ? <MiniLoader /> : "remove"}
+        </UnderlineButton>
       </div>
     </motion.div>
   );
