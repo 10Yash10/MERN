@@ -8,4 +8,24 @@ const Loader = () => {
   );
 };
 
+export const MiniLoader = ({ theme = "light" }) => {
+  const isDark = theme === "dark";
+
+  return (
+    <div
+      className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+        isDark
+          ? "border-neutral-700 bg-neutral-900"
+          : "border-neutral-200 bg-white"
+      }`}
+    >
+      <div
+        className={`w-4 h-4 rounded-full border border-transparent animate-spin ${
+          isDark ? "border-t-white" : "border-t-neutral-900"
+        }`}
+      />
+    </div>
+  );
+};
+
 export default Loader;

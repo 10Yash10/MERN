@@ -1,6 +1,4 @@
-import React, { useMemo, useState } from "react";
-import { useLogoutMutation } from "../../features/auth/auth";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
 import { useGetMenuQuery } from "../../features/menu/menu";
 import Loader from "../../components/layout/Loader";
 import Card from "../../components/ui/Card";
@@ -12,25 +10,15 @@ import {
 } from "../../features/cart/cart";
 
 const Menu = () => {
-  const [logout] = useLogoutMutation();
-
   const { data, isLoading } = useGetMenuQuery();
 
   const { data: cartData = [] } = useGetCartQuery();
 
-  const [addUpdateToCart, { isLoading: isAddingUpdating }] =
-    useAddUpdateToCartMutation();
+  const [addUpdateToCart] = useAddUpdateToCartMutation();
+  const [removeFromCart] = useRemoveFromCartMutation();
 
-  const [removeFromCart, { isLoading: isRemoving }] =
-    useRemoveFromCartMutation();
-
-  // SEARCH STATE
-
+  const [loadingOperation, setLoadingOperation] = useState(null);
   const [search, setSearch] = useState("");
-
-  const navigate = useNavigate();
-
-  // FILTER MENU
 
   const filteredMenu = useMemo(() => {
     if (!data) return [];
@@ -49,61 +37,97 @@ const Menu = () => {
     });
   }, [data, search]);
 
-  // ADD PRODUCT
+  useEffect(() => {
+    if (!loadingOperation) return;
+
+    const { productId, type, quantity } = loadingOperation;
+
+    const cartItem = cartData.find((item) => item.productId === productId);
+
+    if (type === "add" && cartItem) {
+      setLoadingOperation(null);
+      return;
+    }
+
+    if (
+      type === "update" &&
+      cartItem &&
+      Number(cartItem.quantity) === Number(quantity)
+    ) {
+      setLoadingOperation(null);
+      return;
+    }
+
+    if (type === "remove" && !cartItem) {
+      setLoadingOperation(null);
+    }
+  }, [cartData, loadingOperation]);
 
   const handleAddUpdateToCart = async (cardData) => {
+    setLoadingOperation({
+      productId: cardData.productId,
+      type: "add",
+      quantity: cardData.quantity,
+    });
+
     try {
-      const res = await addUpdateToCart({
+      await addUpdateToCart({
         productId: cardData.productId,
         name: cardData.name,
         quantity: cardData.quantity.toString(),
         price: cardData.price.toString(),
         isAvailable: true,
       }).unwrap();
-
-      // console.log("Product added:", res);
     } catch (err) {
       console.error("Failed to add product:", err);
+      setLoadingOperation(null);
     }
   };
 
-  // UPDATE QUANTITY
-
   const handleQuantityUpdate = async ({ productId, name, price, quantity }) => {
+    setLoadingOperation({
+      productId,
+      type: "update",
+      quantity,
+    });
+
     try {
-      const res = await addUpdateToCart({
+      await addUpdateToCart({
         productId,
         name,
         quantity: quantity.toString(),
         price: price.toString(),
         isAvailable: true,
       }).unwrap();
-
-      // console.log("Quantity updated:", res);
     } catch (err) {
       console.error("Failed to update quantity:", err);
+      setLoadingOperation(null);
     }
   };
 
-  // REMOVE PRODUCT
-
   const handleRemoveFromCart = async (productId) => {
+    setLoadingOperation({
+      productId,
+      type: "remove",
+    });
+
     try {
-      const res = await removeFromCart({
+      await removeFromCart({
         productId,
       }).unwrap();
-
-      // console.log("Product removed:", res);
     } catch (err) {
       console.error("Failed to remove product:", err);
+      setLoadingOperation(null);
     }
+  };
+
+  const isProductLoading = (productId) => {
+    return loadingOperation?.productId === productId;
   };
 
   return (
     <div>
       {isLoading && <Loader />}
-
-      {/* SEARCH */}
 
       <div className="w-full flex justify-center mb-10">
         <div className="w-full max-w-xl relative">
@@ -115,7 +139,6 @@ const Menu = () => {
             className="w-full border border-neutral-900 px-5 py-3 pr-12 outline-none focus:bg-neutral-100 duration-300"
           />
 
-          {/* Search Icon */}
           <div className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -135,8 +158,6 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* MENU */}
-
       <div className="flex justify-center gap-6 flex-wrap">
         {filteredMenu.map(
           (item, index) =>
@@ -150,6 +171,7 @@ const Menu = () => {
                 description={item.description}
                 index={index}
                 cartData={cartData}
+                isLoading={isProductLoading(item._id)}
                 handleAddUpdateToCart={handleAddUpdateToCart}
                 handleQuantityUpdate={handleQuantityUpdate}
                 handleRemoveFromCart={handleRemoveFromCart}
@@ -157,10 +179,6 @@ const Menu = () => {
             ),
         )}
       </div>
-
-      {/* ----------------------------------------- */}
-      {/* NO RESULTS */}
-      {/* ----------------------------------------- */}
 
       {!isLoading && filteredMenu.length === 0 && (
         <div className="w-full flex justify-center mt-20">
@@ -175,19 +193,6 @@ const Menu = () => {
           </div>
         </div>
       )}
-
-      {/* Logout */}
-
-      {/*
-      <button
-        onClick={async () => {
-          await logout().unwrap();
-          navigate("/login", { replace: true });
-        }}
-      >
-        logout
-      </button>
-      */}
     </div>
   );
 };

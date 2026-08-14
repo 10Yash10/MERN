@@ -1,6 +1,13 @@
 import { motion } from "framer-motion";
+import { MiniLoader } from "../layout/Loader";
 
-export const FillButton = ({ text, style, isLoading = false, ...props }) => {
+export const FillButton = ({
+  text,
+  style,
+  theme,
+  isLoading = false,
+  ...props
+}) => {
   return (
     <motion.button
       className={`relative px-6 py-3 font-semibold text-black border border-black overflow-hidden cursor-pointer ${style}`}
@@ -20,9 +27,7 @@ export const FillButton = ({ text, style, isLoading = false, ...props }) => {
 
       {/* Button text (must have z-index to stay visible) */}
       {isLoading ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full border-t-2 border-t-black bg-white animate-spin" />
-        </div>
+        <MiniLoader theme={theme} />
       ) : (
         <motion.span
           className="relative z-10 block"
