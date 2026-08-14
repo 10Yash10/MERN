@@ -34,11 +34,11 @@ export default async (app) => {
         autoRemove: "native",
       }),
       cookie: {
-        // secure: config.NODE_ENV === "production" ? true : false,
-        secure: false, // for local testing
+        secure: config.NODE_ENV === "production" ? true : false,
+        // secure: false, // for local testing
         httpOnly: true,
-        // sameSite: config.NODE_ENV === "production" ? "none" : "lax",
-        sameSite: "lax", // for local testing
+        sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+        // sameSite: "lax", // for local testing
         maxAge: 7000 * 60 * 60 * 24,
       },
     }),
