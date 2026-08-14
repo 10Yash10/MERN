@@ -35,9 +35,9 @@ export default async (app) => {
       }),
       cookie: {
         secure: config.NODE_ENV === "production" ? true : false,
-        secure: false,
+        // secure: false,
         httpOnly: true,
-        sameSite: config.NODE_ENV === "production" ? "lax" : "none",
+        sameSite: config.NODE_ENV === "production" ? "none" : "lax",
         // sameSite: "none",
         maxAge: 7000 * 60 * 60 * 24,
       },
