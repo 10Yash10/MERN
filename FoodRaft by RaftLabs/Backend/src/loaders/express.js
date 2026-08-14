@@ -34,9 +34,11 @@ export default async (app) => {
         autoRemove: "native",
       }),
       cookie: {
-        secure: config.NODE_ENV === "production" ? true : false,
+        // secure: config.NODE_ENV === "production" ? true : false,
+        secure: false,
         httpOnly: true,
-        sameSite: "lax",
+        // sameSite: "lax",
+        sameSite: "none",
         maxAge: 7000 * 60 * 60 * 24,
       },
     }),
