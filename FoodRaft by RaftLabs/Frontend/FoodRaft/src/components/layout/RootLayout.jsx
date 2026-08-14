@@ -45,10 +45,6 @@ const RootLayout = () => {
       await logout().unwrap();
 
       setIsProfileOpen(false);
-
-      navigate("/login", {
-        replace: true,
-      });
     } catch (err) {
       console.error("Logout failed:", err);
     }
