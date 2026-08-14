@@ -38,7 +38,7 @@ export default async (app) => {
         secure: false, // for local testing
         httpOnly: true,
         // sameSite: config.NODE_ENV === "production" ? "none" : "lax",
-        sameSite: "none", // for local testing
+        sameSite: "lax", // for local testing
         maxAge: 7000 * 60 * 60 * 24,
       },
     }),
