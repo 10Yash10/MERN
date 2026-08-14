@@ -1,6 +1,9 @@
+import dns from "node:dns/promises";
 import mongoose from "mongoose";
 import { config } from "./src/config/env.js";
 import Menu from "./src/module/foodraft/models/menu.model.js";
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const seedProducts = [
   // --- PIZZA ---
