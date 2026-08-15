@@ -6,6 +6,10 @@ export const orderApi = apiSlice.injectEndpoints({
       query: () => "/orders",
       providesTags: ["Order"],
     }),
+    getOrderStatusNotification: builder.query({
+      query: () => "/status-notification",
+      providesTags: ["Order"],
+    }),
     completeOrder: builder.mutation({
       query: (credentials) => ({
         url: "/order",
@@ -14,7 +18,20 @@ export const orderApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Order"],
     }),
+    cancelOrder: builder.mutation({
+      query: (credentials) => ({
+        url: "/cancel-order",
+        method: "DELETE",
+        body: credentials,
+      }),
+      invalidatesTags: ["Order"],
+    }),
   }),
 });
 
-export const { useGetOrdersByIdQuery, useCompleteOrderMutation } = orderApi;
+export const {
+  useGetOrdersByIdQuery,
+  useGetOrderStatusNotificationQuery,
+  useCompleteOrderMutation,
+  useCancelOrderMutation,
+} = orderApi;

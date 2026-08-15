@@ -9,7 +9,6 @@ export class MenuServices {
   }
 
   static async fetchMenuByMenuItemId(id) {
-    console.log(id);
     const menuItem = await Menu.findById({ _id: id });
 
     if (!menuItem) throw new NotFoundError("Item not found");

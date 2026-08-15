@@ -5,12 +5,30 @@ import { useGetMeQuery, useLogoutMutation } from "../../features/auth/auth";
 import { motion, AnimatePresence } from "motion/react";
 import Loader from "./Loader";
 import { useGetCartQuery } from "../../features/cart/cart";
-import { useGetOrdersByIdQuery } from "../../features/order/order";
+import {
+  useGetOrdersByIdQuery,
+  useGetOrderStatusNotificationQuery,
+} from "../../features/order/order";
+import { mapStatus } from "../../utils/mapStatus";
 
 const RootLayout = () => {
   const { data, isLoading } = useGetMeQuery();
-  const { data: cartData } = useGetCartQuery();
-  const { data: orderData } = useGetOrdersByIdQuery();
+  const { data: cartData = [] } = useGetCartQuery();
+  const { data: orderData = [] } = useGetOrdersByIdQuery();
+
+  const orderCount = orderData.filter(
+    (item) => !["CANCELLED", "DELIVERED"].includes(item.status),
+  )?.length;
+
+  const { data: statusData = [] } = useGetOrderStatusNotificationQuery(
+    undefined,
+    {
+      pollingInterval: orderCount > 0 ? 2 * 60 * 1000 : 0, // every 2 mins
+
+      // skipPollingIfUnfocused: true,
+      skip: orderCount === 0,
+    },
+  );
 
   const [logout] = useLogoutMutation();
 
@@ -60,14 +78,34 @@ const RootLayout = () => {
 
   return (
     <motion.div style={{ height: "100vh" }}>
-      <motion.nav
-        initial={{ y: -100 }}
+      {/* notification banner */}
+      <motion.div
+        initial={{ y: -50 }}
         animate={{ y: 0 }}
         transition={{
           delay: 0.3,
           duration: 0.7,
         }}
-        className="h-[10vh] w-full bg-neutral-900 flex items-center justify-between px-6 fixed top-0 shadow-lg z-50"
+        className="w-full h-10 bg-white flex items-center justify-center gap-3 fixed top-0 left-0"
+      >
+        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse duration-125" />
+
+        <p className="text-sm text-neutral-900">
+          {statusData[0]?.deliveryDetails?.name.split(" ")[0] +
+            ", your order is " +
+            mapStatus(statusData[0]?.status)}
+        </p>
+      </motion.div>
+
+      {/* nav bar */}
+      <motion.nav
+        initial={{ y: -120 }}
+        animate={{ y: 0 }}
+        transition={{
+          delay: 0.3,
+          duration: 0.7,
+        }}
+        className={`h-[10vh] w-full bg-neutral-900 flex items-center justify-between px-6 fixed ${orderCount > 0 ? "top-10" : "top-0"} top-0 shadow-lg z-50`}
       >
         {/* LOGO */}
 
@@ -109,9 +147,9 @@ const RootLayout = () => {
 
           <UnderlineButton onClick={() => navigate("/order")} color="white">
             <div className="flex gap-2 items-center">
-              Order
+              Orders
               <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-neutral-900 text-xs">
-                {orderData?.length ?? 0}
+                {orderData?.status !== "DELIVERED" ? (orderCount ?? 0) : 0}
                 {/* // update to calculate the count of
                 only items that are not delivered. */}
               </div>
@@ -215,7 +253,9 @@ const RootLayout = () => {
 
       {/* MAIN */}
 
-      <main className="h-auto min-h-[90vh] p-6 mt-20 overflow-x-clip">
+      <main
+        className={`h-auto min-h-[90vh] p-6 ${orderCount > 0 ? "mt-32" : "mt-20"} overflow-x-clip`}
+      >
         <Outlet />
       </main>
 

@@ -6,9 +6,20 @@ import NotFoundError from "../../../shared/errors/not-found-error.js";
 
 export class OrderServices {
   static async getOrdersById(userId) {
-    const orders = await Order.find({ userId });
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
 
     return orders;
+  }
+
+  static async getStatusNotification(id) {
+    const status = await Order.find(
+      { userId: id, status: { $nin: ["CANCELLED", "DELIVERED"] } },
+      { _id: 0, orderId: 1, deliveryDetails: 1, status: 1 },
+    );
+
+    if (!status) throw new NotFoundError("Unable to fetch status");
+
+    return status;
   }
 
   static async getBill(userId) {
@@ -35,6 +46,8 @@ export class OrderServices {
         },
       },
     ]);
+
+    console.log(cartItemPrice);
 
     // If cart is empty
     if (!cartItemPrice.length) {
@@ -67,11 +80,6 @@ export class OrderServices {
   }
 
   static async createOrder(userId, deliveryDetails) {
-    // constatn values:
-    const deliveryFee = 40;
-    const discount = 0;
-    const gst = 7; // in percentage
-
     // generating orderId
     const orderId = generateUniqueId();
 
@@ -82,25 +90,9 @@ export class OrderServices {
       return false;
     }
 
-    // getting subTotal
-    const cartItemPrice = await Cart.aggregate([
-      { $match: { userId: new Types.ObjectId(userId) } },
-      {
-        $group: {
-          _id: "$userId",
-          subTotal: { $sum: { $multiply: ["$price", "$quantity"] } },
-        },
-      },
-    ]);
+    const pricing = await this.getBill(userId);
 
-    // getting cart items;
-    const subTotal = cartItemPrice ? cartItemPrice[0].subTotal : 0;
-
-    const tax = (subTotal * gst) / 100;
-
-    const total = subTotal + tax + deliveryFee;
-
-    const pricing = { subTotal, deliveryFee, tax, discount, total };
+    console.log(pricing);
 
     const createdOrder = await Order.create({
       orderId,
@@ -117,5 +109,46 @@ export class OrderServices {
     });
 
     return createdOrder;
+  }
+
+  static async updateOrderStatus() {
+    const now = new Date();
+    const min = 60 * 1000;
+
+    // update order whose status is received and 5 min is spent.
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * min);
+    await Order.updateMany(
+      { status: "RECEIVED", createdAt: { $lte: fiveMinutesAgo } },
+      { $set: { status: "PREPARING" } },
+    );
+
+    // update status to out_of_order after 15mins of preparing.
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * min);
+    await Order.updateMany(
+      { status: "PREPARING", updatedAt: { $lte: fifteenMinutesAgo } },
+      { $set: { status: "OUT_FOR_DELIVERY" } },
+    );
+
+    // update status to delivered 20 mins after out of delivery.
+    const twentyMinutesAgo = new Date(now.getTime() - 20 * min);
+    await Order.updateMany(
+      { status: "OUT_FOR_DELIVERY", updatedAt: { $lte: twentyMinutesAgo } },
+      { $set: { status: "DELIVERED" } },
+    );
+  }
+
+  static async cancelOrder(orderId) {
+    const order = await Order.findOne({ orderId });
+
+    if (!order) throw new NotFoundError("Order not found");
+
+    if (["OUT_OF_DELIVERY", "DELIVERED"].includes(order.status))
+      throw new Error(
+        `Cannot cancel an order that is already ${order.status.replace(/_/g, " ")}`,
+      );
+
+    order.status = "CANCELLED";
+
+    return await order.save();
   }
 }

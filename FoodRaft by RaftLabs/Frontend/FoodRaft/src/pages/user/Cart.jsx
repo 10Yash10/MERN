@@ -62,7 +62,12 @@ const Cart = () => {
       <div className="h-6" />
 
       {cartData?.map((item, index) => (
-        <CardRow cartData={item} index={index} onFetch={setFetching} />
+        <CardRow
+          key={item._id}
+          cartData={item}
+          index={index}
+          onFetch={(value) => setFetching(value)}
+        />
       ))}
 
       <div className="flex flex-col items-center gap-6 mt-24">

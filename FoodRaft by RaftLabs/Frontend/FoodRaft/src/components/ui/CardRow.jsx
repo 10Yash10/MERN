@@ -9,7 +9,7 @@ import Loader, { MiniLoader } from "../layout/Loader";
 import { useEffect } from "react";
 
 const CardRow = ({ cartData, index, onFetch }) => {
-  // console.log(cartData);
+  const isFirstRef = useRef(true);
   const timerRef = useRef(null);
   const [quantity, setQuantity] = useState(cartData?.quantity);
   const [addUpdateToCart, { isLoading: isAddingUpdating }] =
@@ -28,17 +28,17 @@ const CardRow = ({ cartData, index, onFetch }) => {
     onFetch(isAddingUpdating);
   }, [isAddingUpdating]);
 
-  const debouncedApiRequest = () => {
+  const debouncedApiRequest = (newQuantity) => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(() => {
       // handleRemove();
-      if (quantity >= 1) {
+      if (newQuantity >= 1) {
         try {
           addUpdateToCart({
             productId: cartData.productId,
             name: cartData.name,
-            quantity: quantity.toString(),
+            quantity: newQuantity.toString(),
             price: cartData.price.toString(),
             isAvailable: cartData.isAvailable,
           });
@@ -53,13 +53,20 @@ const CardRow = ({ cartData, index, onFetch }) => {
 
   // call deboncedApi upon quantity change.
   useEffect(() => {
+    if (isFirstRef.current) {
+      isFirstRef.current = false;
+      return;
+    }
+
     onFetch(true);
-    debouncedApiRequest();
+    debouncedApiRequest(quantity);
   }, [quantity]);
 
   // clearing timer on unmount
   useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   return (
