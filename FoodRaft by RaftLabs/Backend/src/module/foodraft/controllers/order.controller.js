@@ -12,6 +12,14 @@ export const getBill = asyncWrapper(async (req, res) => {
   return res.status(200).json(data);
 });
 
+export const getStatusNotification = asyncWrapper(async (req, res) => {
+  const { id } = req.user;
+
+  const data = await OrderServices.getStatusNotification(id);
+
+  return res.status(200).json(data);
+});
+
 export const getOrdersById = asyncWrapper(async (req, res) => {
   const { id } = req.user;
 
@@ -31,4 +39,20 @@ export const createOrder = asyncWrapper(async (req, res) => {
   );
 
   return res.status(201).json(data);
+});
+
+export const updateOrder = asyncWrapper(async (req, res) => {
+  const { orderId } = req.body;
+
+  const data = await OrderServices.updateOrderStatus(orderId);
+
+  return res.status(200).json({ message: "Order updated successfully" });
+});
+
+export const deleteOrder = asyncWrapper(async (req, res) => {
+  const { orderId } = req.body;
+
+  const data = await OrderServices.cancelOrder(orderId);
+
+  return res.status(200).json({ message: "Order deleted successfully" });
 });

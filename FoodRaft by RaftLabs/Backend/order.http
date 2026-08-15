@@ -7,6 +7,10 @@ Content-Type: application/json
 }
 
 ###
+
+GET http://localhost:3000/api/status-notification
+
+###
 GET http://localhost:3000/api/getBill
 
 ###
@@ -25,4 +29,20 @@ Content-Type: application/json
             "postalCode": "201301"
         }
     }
+}
+
+# PATCH http://localhost:3000/api/update-order-status
+# Content-Type: application/json
+
+# {
+#     "orderId": ""
+# }
+
+###
+
+DELETE http://localhost:3000/api/delete-order
+Content-Type: application/json
+
+{
+    "orderId": "ORD-3e7527ba-6744"
 }

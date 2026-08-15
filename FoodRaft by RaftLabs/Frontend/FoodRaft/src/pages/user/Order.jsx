@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { useGetOrdersByIdQuery } from "../../features/order/order";
 import Loader from "../../components/layout/Loader";
+import { UnderlineButton } from "../../components/ui/Button";
 
 const Order = () => {
   const { data: orders = [], isLoading, isError } = useGetOrdersByIdQuery();
@@ -91,226 +92,238 @@ const Order = () => {
 
       <div className="flex flex-col gap-8">
         {orders.map((order, index) => (
-          <motion.div
-            key={order._id}
-            initial={{
-              opacity: 0,
-              y: 40,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              delay: index * 0.1,
-              duration: 0.5,
-            }}
-            className="w-full border border-neutral-900 bg-white"
-          >
-            {/* ORDER HEADER */}
-
-            <div className="bg-neutral-900 text-white p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-white/50">
-                  Order ID
-                </p>
-
-                <h2 className="text-xl font-bold mt-1">{order.orderId}</h2>
+          <div key={order._id}>
+            {/* cancel order button */}
+            {order.status === "RECEIVED" && (
+              <div className="h-4" key={order._id}>
+                <UnderlineButton>cancel order</UnderlineButton>
               </div>
+            )}
 
-              <div className="flex items-center gap-6">
+            <motion.div
+              key={order._id}
+              initial={{
+                opacity: 0,
+                y: 40,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                delay: index * 0.1,
+                duration: 0.5,
+              }}
+              className="w-full border border-neutral-900 bg-white"
+            >
+              {/* ORDER HEADER */}
+
+              <div className="bg-neutral-900 text-white p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-white/50">
-                    Ordered On
+                    Order ID
                   </p>
 
-                  <p className="text-sm mt-1">{formatDate(order.createdAt)}</p>
-
-                  <p className="text-xs text-white/50">
-                    {formatTime(order.createdAt)}
-                  </p>
+                  <h2 className="text-xl font-bold mt-1">{order.orderId}</h2>
                 </div>
 
-                {/* Status */}
-                <div className="px-4 py-2 border border-white">
-                  <span className="text-sm font-semibold">{order.status}</span>
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-white/50">
+                      Ordered On
+                    </p>
+
+                    <p className="text-sm mt-1">
+                      {formatDate(order.createdAt)}
+                    </p>
+
+                    <p className="text-xs text-white/50">
+                      {formatTime(order.createdAt)}
+                    </p>
+                  </div>
+
+                  {/* Status */}
+                  <div className="px-4 py-2 border border-white">
+                    <span className="text-sm font-semibold">
+                      {order.status}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* ORDER CONTENT */}
+              {/* ORDER CONTENT */}
 
-            <div className="p-6">
-              {/* ITEMS */}
+              <div className="p-6">
+                {/* ITEMS */}
 
-              <div>
-                <h3 className="text-xl font-bold text-neutral-900 mb-4">
-                  Items
-                </h3>
+                <div>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-4">
+                    Items
+                  </h3>
 
-                <div className="flex flex-col">
-                  {order.cartItems?.map((item, itemIndex) => (
-                    <motion.div
-                      key={`${order._id}-${item.productId}`}
-                      initial={{
-                        opacity: 0,
-                        x: -15,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        x: 0,
-                      }}
-                      transition={{
-                        delay: index * 0.1 + itemIndex * 0.05,
-                        duration: 0.3,
-                      }}
-                      className={`flex items-center justify-between py-4 ${
-                        itemIndex !== order.cartItems.length - 1
-                          ? "border-b border-neutral-200"
-                          : ""
-                      }`}
-                    >
-                      {/* Product */}
+                  <div className="flex flex-col">
+                    {order.cartItems?.map((item, itemIndex) => (
+                      <motion.div
+                        key={`${order._id}-${item.productId}`}
+                        initial={{
+                          opacity: 0,
+                          x: -15,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          x: 0,
+                        }}
+                        transition={{
+                          delay: index * 0.1 + itemIndex * 0.05,
+                          duration: 0.3,
+                        }}
+                        className={`flex items-center justify-between py-4 ${
+                          itemIndex !== order.cartItems.length - 1
+                            ? "border-b border-neutral-200"
+                            : ""
+                        }`}
+                      >
+                        {/* Product */}
+                        <div>
+                          <h4 className="font-semibold text-neutral-900">
+                            {item.name}
+                          </h4>
+
+                          <p className="text-sm text-neutral-500 mt-1">
+                            ₹{Number(item.price).toFixed(2)} × {item.quantity}
+                          </p>
+                        </div>
+
+                        {/* Total */}
+                        <div className="text-right">
+                          <p className="font-bold text-neutral-900">
+                            ₹
+                            {(
+                              Number(item.price) * Number(item.quantity)
+                            ).toFixed(2)}
+                          </p>
+
+                          <p className="text-xs text-neutral-400">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* BOTTOM SECTION */}
+
+                <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* DELIVERY DETAILS */}
+
+                  <div className="border border-neutral-200 p-5">
+                    <h3 className="text-xl font-bold text-neutral-900 mb-5">
+                      Delivery Details
+                    </h3>
+
+                    <div className="flex flex-col gap-3 text-sm">
                       <div>
-                        <h4 className="font-semibold text-neutral-900">
-                          {item.name}
-                        </h4>
+                        <p className="text-xs uppercase tracking-wider text-neutral-400">
+                          Name
+                        </p>
 
-                        <p className="text-sm text-neutral-500 mt-1">
-                          ₹{Number(item.price).toFixed(2)} × {item.quantity}
+                        <p className="font-medium mt-1">
+                          {order.deliveryDetails?.name}
                         </p>
                       </div>
 
-                      {/* Total */}
-                      <div className="text-right">
-                        <p className="font-bold text-neutral-900">
-                          ₹
-                          {(Number(item.price) * Number(item.quantity)).toFixed(
-                            2,
-                          )}
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-neutral-400">
+                          Phone
                         </p>
 
-                        <p className="text-xs text-neutral-400">
-                          Qty: {item.quantity}
+                        <p className="font-medium mt-1">
+                          {order.deliveryDetails?.phone}
                         </p>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
 
-              {/* BOTTOM SECTION */}
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-neutral-400">
+                          Address
+                        </p>
 
-              <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* DELIVERY DETAILS */}
+                        <p className="font-medium mt-1">
+                          {order.deliveryDetails?.address?.line1}
+                        </p>
 
-                <div className="border border-neutral-200 p-5">
-                  <h3 className="text-xl font-bold text-neutral-900 mb-5">
-                    Delivery Details
-                  </h3>
+                        {order.deliveryDetails?.address?.line2 && (
+                          <p className="font-medium">
+                            {order.deliveryDetails.address.line2}
+                          </p>
+                        )}
 
-                  <div className="flex flex-col gap-3 text-sm">
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-neutral-400">
-                        Name
-                      </p>
-
-                      <p className="font-medium mt-1">
-                        {order.deliveryDetails?.name}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-neutral-400">
-                        Phone
-                      </p>
-
-                      <p className="font-medium mt-1">
-                        {order.deliveryDetails?.phone}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-neutral-400">
-                        Address
-                      </p>
-
-                      <p className="font-medium mt-1">
-                        {order.deliveryDetails?.address?.line1}
-                      </p>
-
-                      {order.deliveryDetails?.address?.line2 && (
                         <p className="font-medium">
-                          {order.deliveryDetails.address.line2}
+                          {order.deliveryDetails?.address?.city},{" "}
+                          {order.deliveryDetails?.address?.state}
                         </p>
-                      )}
 
-                      <p className="font-medium">
-                        {order.deliveryDetails?.address?.city},{" "}
-                        {order.deliveryDetails?.address?.state}
-                      </p>
+                        <p className="font-medium">
+                          PIN - {order.deliveryDetails?.address?.postalCode}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-                      <p className="font-medium">
-                        PIN - {order.deliveryDetails?.address?.postalCode}
-                      </p>
+                  {/* BILL */}
+
+                  <div className="border border-neutral-200 p-5">
+                    <h3 className="text-xl font-bold text-neutral-900 mb-5">
+                      Bill Details
+                    </h3>
+
+                    <div className="flex flex-col gap-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-neutral-500">Subtotal</span>
+
+                        <span className="font-medium">
+                          ₹{Number(order.pricing?.subTotal).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between text-sm">
+                        <span className="text-neutral-500">Delivery Fee</span>
+
+                        <span className="font-medium">
+                          ₹{Number(order.pricing?.deliveryFee).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between text-sm">
+                        <span className="text-neutral-500">GST</span>
+
+                        <span className="font-medium">
+                          ₹{Number(order.pricing?.tax).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between text-sm">
+                        <span className="text-neutral-500">Discount</span>
+
+                        <span className="font-medium">
+                          - ₹{Number(order.pricing?.discount).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="border-t border-neutral-200 pt-4 mt-2 flex justify-between">
+                        <span className="text-lg font-bold">Total</span>
+
+                        <span className="text-2xl font-extrabold">
+                          ₹{Number(order.pricing?.total).toFixed(2)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* BILL */}
+                {/* STATUS HISTORY */}
 
-                <div className="border border-neutral-200 p-5">
-                  <h3 className="text-xl font-bold text-neutral-900 mb-5">
-                    Bill Details
-                  </h3>
-
-                  <div className="flex flex-col gap-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-neutral-500">Subtotal</span>
-
-                      <span className="font-medium">
-                        ₹{Number(order.pricing?.subTotal).toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-sm">
-                      <span className="text-neutral-500">Delivery Fee</span>
-
-                      <span className="font-medium">
-                        ₹{Number(order.pricing?.deliveryFee).toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-sm">
-                      <span className="text-neutral-500">GST</span>
-
-                      <span className="font-medium">
-                        ₹{Number(order.pricing?.tax).toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-sm">
-                      <span className="text-neutral-500">Discount</span>
-
-                      <span className="font-medium">
-                        - ₹{Number(order.pricing?.discount).toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="border-t border-neutral-200 pt-4 mt-2 flex justify-between">
-                      <span className="text-lg font-bold">Total</span>
-
-                      <span className="text-2xl font-extrabold">
-                        ₹{Number(order.pricing?.total).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* STATUS HISTORY */}
-
-              {order.statusHistory?.length > 0 && (
+                {/* {order.statusHistory?.length > 0 && (
                 <div className="mt-8 border-t border-neutral-200 pt-6">
                   <h3 className="text-xl font-bold text-neutral-900 mb-5">
                     Order Status
@@ -338,9 +351,10 @@ const Order = () => {
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
+              )} */}
+              </div>
+            </motion.div>
+          </div>
         ))}
       </div>
     </div>

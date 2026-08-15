@@ -36,7 +36,6 @@ const Card = ({
   const [isInCart, setIsInCart] = useState(Boolean(cartItem));
 
   const debouncedApiRequest = (nextQuantity) => {
-    console.log(nextQuantity);
     if (timerRef.current) {
       // here we are clearing the previous pending api for calling upon click of increase or decrease
       clearTimeout(timerRef.current);
