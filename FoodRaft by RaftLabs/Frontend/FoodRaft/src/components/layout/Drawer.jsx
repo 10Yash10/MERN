@@ -180,6 +180,9 @@ const Drawer = ({ isOpen, setIsOpen, id }) => {
       !address.state.trim() ||
       !address.postalCode
     ) {
+      setErrors({
+        postalCode: "Fields are required.",
+      });
       return;
     }
 

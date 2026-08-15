@@ -29,7 +29,6 @@ const ViewItem = () => {
 
   const filteredCartData =
     cartData.find((val) => val?.productId === id) ?? null;
-  console.log(filteredCartData);
 
   const [quantity, setQuantity] = useState(filteredCartData?.quantity ?? 1);
 
@@ -226,7 +225,7 @@ const ViewItem = () => {
                 </p>
 
                 <p className="text-2xl font-bold text-neutral-900 mt-1">
-                  ₹{item.price * quantity}
+                  ${item.price * quantity}
                 </p>
               </div>
 
@@ -241,6 +240,8 @@ const ViewItem = () => {
 
               <FillButton
                 onClick={handleAdd}
+                disabled={isAddingUpdating}
+                isLoading={isAddingUpdating}
                 text={filteredCartData ? "Update Cart" : "Add to Cart"}
               />
             </div>

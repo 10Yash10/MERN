@@ -16,7 +16,6 @@ const RootLayout = () => {
 
   const navigate = useNavigate();
 
-  // -----------------------------------------
   // PROFILE DROPDOWN STATE
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -41,6 +40,7 @@ const RootLayout = () => {
   // LOGOUT
 
   const handleLogout = async () => {
+    navigate("/login", { replace: true });
     try {
       await logout().unwrap();
 
@@ -112,6 +112,8 @@ const RootLayout = () => {
               Order
               <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-neutral-900 text-xs">
                 {orderData?.length ?? 0}
+                {/* // update to calculate the count of
+                only items that are not delivered. */}
               </div>
             </div>
           </UnderlineButton>
@@ -213,7 +215,7 @@ const RootLayout = () => {
 
       {/* MAIN */}
 
-      <main className="h-auto min-h-[90vh] p-6 mt-20">
+      <main className="h-auto min-h-[90vh] p-6 mt-20 overflow-x-clip">
         <Outlet />
       </main>
 
