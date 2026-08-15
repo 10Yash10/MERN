@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { MiniLoader } from "../layout/Loader";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ const Card = ({
   const cartItem = cartData.find((item) => item.productId === u_key);
 
   const quantityFetched = cartItem?.quantity;
+  const timerRef = useRef(null);
 
   const [quantity, setQuantity] = useState(
     quantityFetched !== undefined ? Number(quantityFetched) : 1,
@@ -31,28 +32,50 @@ const Card = ({
     }
   }, [quantityFetched]);
 
-  const isInCart = Boolean(cartItem);
+  // const isInCart = Boolean(cartItem);
+  const [isInCart, setIsInCart] = useState(Boolean(cartItem));
+
+  const debouncedApiRequest = (nextQuantity) => {
+    console.log(nextQuantity);
+    if (timerRef.current) {
+      // here we are clearing the previous pending api for calling upon click of increase or decrease
+      clearTimeout(timerRef.current);
+    }
+
+    timerRef.current = setTimeout(() => {
+      handleQuantityUpdate({
+        productId: u_key,
+        name,
+        price,
+        quantity: nextQuantity,
+      });
+    }, 500); // delay passing the data by 500 milli seconds
+  };
+
+  // clear timerRef
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleIncrease = (e) => {
-    e.stopPropagation(); // Stop navigation trigger
+    e.stopPropagation();
     if (isLoading) return;
 
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
 
-    handleQuantityUpdate({
-      productId: u_key,
-      name,
-      price,
-      quantity: newQuantity,
-    });
+    debouncedApiRequest(newQuantity);
   };
 
   const handleDecrease = (e) => {
-    e.stopPropagation(); // Stop navigation trigger
+    e.stopPropagation();
     if (isLoading) return;
 
     if (quantity === 1) {
+      setIsInCart(false);
       handleRemoveFromCart(u_key);
       return;
     }
@@ -60,17 +83,14 @@ const Card = ({
     const newQuantity = quantity - 1;
     setQuantity(newQuantity);
 
-    handleQuantityUpdate({
-      productId: u_key,
-      name,
-      price,
-      quantity: newQuantity,
-    });
+    debouncedApiRequest(newQuantity);
   };
 
   const handleAdd = (e) => {
-    e.stopPropagation(); // Fixed typo here (stopPropogation -> stopPropagation)
+    e.stopPropagation();
     if (isLoading) return;
+
+    setIsInCart(true);
 
     handleAddUpdateToCart({
       productId: u_key,
@@ -114,19 +134,27 @@ const Card = ({
               <button
                 disabled={isLoading}
                 onClick={handleDecrease}
-                className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-10 border border-white cursor-pointer hover:bg-white/30 duration-300  disabled:cursor-not-allowed"
               >
                 -
               </button>
 
-              <div className="h-full min-w-12 border-b border-t border-white flex items-center justify-center">
-                <p className="px-3 py-2">{quantity}</p>
+              <div className="h-10 w-10 min-w-12 border-b border-t border-white flex items-center justify-center">
+                <p className="px-3 py-2">
+                  {isLoading ? (
+                    <div className="py-1">
+                      <MiniLoader theme="dark" />
+                    </div>
+                  ) : (
+                    quantity
+                  )}
+                </p>
               </div>
 
               <button
                 disabled={isLoading}
                 onClick={handleIncrease}
-                className="px-4 py-2 border border-white cursor-pointer hover:bg-white/30 duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-10 border border-white cursor-pointer hover:bg-white/30 duration-300  disabled:cursor-not-allowed"
               >
                 +
               </button>

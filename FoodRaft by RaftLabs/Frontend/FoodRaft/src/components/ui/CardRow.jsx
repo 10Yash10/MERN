@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { UnderlineButton } from "./Button";
 import { motion } from "motion/react";
 import {
@@ -8,8 +8,9 @@ import {
 import Loader, { MiniLoader } from "../layout/Loader";
 import { useEffect } from "react";
 
-const CardRow = ({ cartData, index }) => {
-  console.log(cartData);
+const CardRow = ({ cartData, index, onFetch }) => {
+  // console.log(cartData);
+  const timerRef = useRef(null);
   const [quantity, setQuantity] = useState(cartData?.quantity);
   const [addUpdateToCart, { isLoading: isAddingUpdating }] =
     useAddUpdateToCartMutation();
@@ -24,10 +25,17 @@ const CardRow = ({ cartData, index }) => {
   };
 
   useEffect(() => {
-    const handleFunction = async () => {
+    onFetch(isAddingUpdating);
+  }, [isAddingUpdating]);
+
+  const debouncedApiRequest = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(() => {
+      // handleRemove();
       if (quantity >= 1) {
         try {
-          await addUpdateToCart({
+          addUpdateToCart({
             productId: cartData.productId,
             name: cartData.name,
             quantity: quantity.toString(),
@@ -36,13 +44,23 @@ const CardRow = ({ cartData, index }) => {
           });
         } catch (err) {
           console.error(err);
+        } finally {
+          onFetch(false);
         }
       }
-    };
+    }, 500);
+  };
 
-    console.log("useeffect");
-    handleFunction();
+  // call deboncedApi upon quantity change.
+  useEffect(() => {
+    onFetch(true);
+    debouncedApiRequest();
   }, [quantity]);
+
+  // clearing timer on unmount
+  useEffect(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+  }, []);
 
   return (
     <motion.div

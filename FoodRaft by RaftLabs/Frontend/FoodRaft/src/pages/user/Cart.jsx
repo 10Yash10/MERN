@@ -3,17 +3,21 @@ import { useGetBillQuery, useGetCartQuery } from "../../features/cart/cart";
 import CardRow from "../../components/ui/CardRow";
 import { FillButton } from "../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
-import Loader from "../../components/layout/Loader";
+import Loader, { MiniLoader } from "../../components/layout/Loader";
 import Drawer from "../../components/layout/Drawer";
 
 const Cart = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   const { data: cartData = [], isLoading: isCartDataLoading } =
     useGetCartQuery();
-  const { data: billData = [], isLoading: isBillDataLoading } =
-    useGetBillQuery();
+  const {
+    data: billData = [],
+    isLoading: isBillDataLoading,
+    isFetching: isBillDataFetching,
+  } = useGetBillQuery();
 
   const isLoading = isCartDataLoading || isBillDataLoading;
 
@@ -30,7 +34,10 @@ const Cart = () => {
       {cartData?.length > 0 ? (
         <div className="w-full flex justify-between sticky top-[10vh] bg-white border-b border-b-netural-900 py-3 z-20">
           <div>
-            <h1 className="text-xl">Total: ${billData.total}/-</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl">Total: ${billData.total}/-</h1>
+              {(isLoading || isBillDataFetching || fetching) && <MiniLoader />}
+            </div>
             <div className="flex gap-3 flex-wrap">
               <p className="text-neutral-800 text-xs">
                 SubTotal: ${billData.subTotal}/-
@@ -55,7 +62,7 @@ const Cart = () => {
       <div className="h-6" />
 
       {cartData?.map((item, index) => (
-        <CardRow cartData={item} index={index} />
+        <CardRow cartData={item} index={index} onFetch={setFetching} />
       ))}
 
       <div className="flex flex-col items-center gap-6 mt-24">
