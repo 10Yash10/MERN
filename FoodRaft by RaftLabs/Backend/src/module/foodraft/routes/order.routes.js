@@ -16,6 +16,6 @@ route.get("/status-notification", authenticateToken, getStatusNotification);
 route.get("/getBill", authenticateToken, getBill);
 route.post("/order", authenticateToken, createOrder);
 route.patch("/update-order-status", updateOrder);
-route.delete("/delete-order", authenticateToken, deleteOrder);
+route.delete("/cancel-order", authenticateToken, deleteOrder);
 
 export default route;

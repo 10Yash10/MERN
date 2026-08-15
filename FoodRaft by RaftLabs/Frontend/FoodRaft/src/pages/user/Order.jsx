@@ -1,11 +1,16 @@
 import React from "react";
 import { motion } from "motion/react";
-import { useGetOrdersByIdQuery } from "../../features/order/order";
+import {
+  useCancelOrderMutation,
+  useGetOrdersByIdQuery,
+} from "../../features/order/order";
 import Loader from "../../components/layout/Loader";
 import { UnderlineButton } from "../../components/ui/Button";
+import { mapStatus } from "../../utils/mapStatus";
 
 const Order = () => {
   const { data: orders = [], isLoading, isError } = useGetOrdersByIdQuery();
+  const [cancelOrder, { data: isCancellingOrder }] = useCancelOrderMutation();
 
   // FORMAT DATE
 
@@ -22,6 +27,14 @@ const Order = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const handleCancel = async (orderId) => {
+    try {
+      await cancelOrder({ orderId });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // LOADING
@@ -95,8 +108,10 @@ const Order = () => {
           <div key={order._id}>
             {/* cancel order button */}
             {order.status === "RECEIVED" && (
-              <div className="h-4" key={order._id}>
-                <UnderlineButton>cancel order</UnderlineButton>
+              <div className="mb-2" key={order._id}>
+                <UnderlineButton onClick={() => handleCancel(order.orderId)}>
+                  cancel order
+                </UnderlineButton>
               </div>
             )}
 
@@ -145,7 +160,7 @@ const Order = () => {
                   {/* Status */}
                   <div className="px-4 py-2 border border-white">
                     <span className="text-sm font-semibold">
-                      {order.status}
+                      {mapStatus(order.status).toUpperCase()}
                     </span>
                   </div>
                 </div>
