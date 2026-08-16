@@ -97,9 +97,12 @@ const ViewItem = () => {
                 height="20"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                // stroke-width="1"
+                // stroke-linecap="round"
+                // stroke-linejoin="round"
+                strokeWidth={1}
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <path d="M12 6L6 12L12 18" />
                 <path d="M6 12H34" />

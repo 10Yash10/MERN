@@ -47,8 +47,6 @@ export class OrderServices {
       },
     ]);
 
-    console.log(cartItemPrice);
-
     // If cart is empty
     if (!cartItemPrice.length) {
       return {
@@ -91,8 +89,6 @@ export class OrderServices {
     }
 
     const pricing = await this.getBill(userId);
-
-    console.log(pricing);
 
     const createdOrder = await Order.create({
       orderId,
