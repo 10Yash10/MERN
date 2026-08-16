@@ -79,23 +79,25 @@ const RootLayout = () => {
   return (
     <motion.div style={{ height: "100vh" }}>
       {/* notification banner */}
-      <motion.div
-        initial={{ y: -50 }}
-        animate={{ y: 0 }}
-        transition={{
-          delay: 0.3,
-          duration: 0.7,
-        }}
-        className="w-full h-10 bg-white flex items-center justify-center gap-3 fixed top-0 left-0"
-      >
-        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse duration-125" />
+      {statusData.length > 0 && (
+        <motion.div
+          initial={{ y: -50 }}
+          animate={{ y: 0 }}
+          transition={{
+            delay: 0.3,
+            duration: 0.7,
+          }}
+          className="z-50 w-full h-10 bg-white flex items-center justify-center gap-3 fixed top-0 left-0"
+        >
+          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse duration-125" />
 
-        <p className="text-sm text-neutral-900">
-          {statusData[0]?.deliveryDetails?.name.split(" ")[0] +
-            ", your order is " +
-            mapStatus(statusData[0]?.status)}
-        </p>
-      </motion.div>
+          <p className="text-sm text-neutral-900">
+            {statusData[0]?.deliveryDetails?.name.split(" ")[0] +
+              ", your order is " +
+              mapStatus(statusData[0]?.status)}
+          </p>
+        </motion.div>
+      )}
 
       {/* nav bar */}
       <motion.nav

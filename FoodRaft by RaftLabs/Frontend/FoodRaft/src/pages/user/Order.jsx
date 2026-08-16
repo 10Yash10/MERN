@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useState } from "react";
 import { motion } from "motion/react";
 import {
   useCancelOrderMutation,
@@ -10,7 +10,9 @@ import { mapStatus } from "../../utils/mapStatus";
 
 const Order = () => {
   const { data: orders = [], isLoading, isError } = useGetOrdersByIdQuery();
-  const [cancelOrder, { data: isCancellingOrder }] = useCancelOrderMutation();
+  const [cancelOrder, { isLoading: isCancellingOrder }] =
+    useCancelOrderMutation();
+  const [showCancel, setShowCancel] = useState();
 
   // FORMAT DATE
 
@@ -107,16 +109,22 @@ const Order = () => {
         {orders.map((order, index) => (
           <div key={order._id}>
             {/* cancel order button */}
-            {order.status === "RECEIVED" && (
-              <div className="mb-2" key={order._id}>
-                <UnderlineButton onClick={() => handleCancel(order.orderId)}>
-                  cancel order
+            {order?.status === "RECEIVED" && (
+              <div
+                className="mb-2"
+                // key={order._id}
+              >
+                <UnderlineButton
+                  isLoading={isCancellingOrder}
+                  onClick={() => handleCancel(order.orderId)}
+                >
+                  {isCancellingOrder ? "cancelling..." : "cancel order"}
                 </UnderlineButton>
               </div>
             )}
 
             <motion.div
-              key={order._id}
+              // key={order._id}
               initial={{
                 opacity: 0,
                 y: 40,
