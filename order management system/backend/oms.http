@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
     "sku": "SKU-1001",
-    "newStock": 45
+    "newStock": 95
 }
 
 ###
@@ -18,12 +18,17 @@ POST http://localhost:3000/api/create-product
 Content-Type: application/json
 
 {
-    "name": "IPhone",
-    "sku": "SKU-1001",
-    "price": 70000,
-    "stock": 100
+    "name": "BlackBerry",
+    "sku": "SKU-1003",
+    "price": 30000,
+    "stock": 200
 }
 
+
+
+###
+
+GET http://localhost:3000/api/orders
 
 ###
 
@@ -31,8 +36,8 @@ POST http://localhost:3000/api/create-order
 Content-Type: application/json
 
 {
-    "name": "Yash",
-    "email": "yash@gmail.com",
+    "name": "test",
+    "email": "test@gmail.com",
     "sku": "SKU-1001",
     "quantity": 5
 }

@@ -14,19 +14,22 @@ const orderSchema = new mongoose.Schema(
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "products",
+      required: true,
     },
     quantity: {
       type: Number,
       required: true,
+      min: 1,
     },
     price: {
       type: Number,
       required: true,
+      min: 0,
     },
-
     totalAmount: {
       type: Number,
       required: true,
+      min: 0,
     },
   },
   { timestamps: true },
