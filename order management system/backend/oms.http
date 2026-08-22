@@ -1,0 +1,38 @@
+###
+
+GET http://localhost:3000/api/products?page=1
+
+###
+
+PATCH http://localhost:3000/api/update-stock
+Content-Type: application/json
+
+{
+    "sku": "SKU-1001",
+    "newStock": 45
+}
+
+###
+
+POST http://localhost:3000/api/create-product
+Content-Type: application/json
+
+{
+    "name": "IPhone",
+    "sku": "SKU-1001",
+    "price": 70000,
+    "stock": 100
+}
+
+
+###
+
+POST http://localhost:3000/api/create-order
+Content-Type: application/json
+
+{
+    "name": "Yash",
+    "email": "yash@gmail.com",
+    "sku": "SKU-1001",
+    "quantity": 5
+}
