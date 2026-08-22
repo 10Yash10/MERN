@@ -11,14 +11,18 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     price: {
       type: Number,
       required: true,
+      min: 0,
     },
     stock: {
       type: Number,
       required: true,
+      min: 0,
+      validate: Number.isInteger,
     },
   },
   { timestamps: true },

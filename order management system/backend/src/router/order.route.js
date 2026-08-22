@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { createOrder } from "../controller/order.controller.js";
+import { createOrder, getOrder } from "../controller/order.controller.js";
 
 const route = Router();
 
-// route.get("/orders", getOrders);
+route.get("/orders", getOrder);
 route.post("/create-order", createOrder);
 
 export default route;

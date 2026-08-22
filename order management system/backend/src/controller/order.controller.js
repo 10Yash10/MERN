@@ -1,14 +1,27 @@
 import { Order } from "../model/Order.model.js";
 import { Product } from "../model/Product.model.js";
-import { updateProductStock } from "./product.controller.js";
 
-export const createOrder = async (req, res) => {
+export const getOrder = async (req, res, next) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 });
+
+    return res.status(200).json(orders);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+export const createOrder = async (req, res, next) => {
   const { name, email, sku, quantity } = req.body;
+
+  if (quantity <= 0) {
+    throw new Error("quantity is required and cannot be negative.");
+  }
 
   console.log(sku, quantity);
   try {
     const updateStock = await Product.findOneAndUpdate(
-      { sku: sku, stock: { $gt: quantity } },
+      { sku: sku, stock: { $gte: quantity } },
       { $inc: { stock: -Number(quantity) } },
       { new: true },
     );
@@ -32,17 +45,11 @@ export const createOrder = async (req, res) => {
     });
 
     if (!createOrder) {
+      return res.status(200).json({ message: "cannot create order" });
     }
 
-    return res.status(200).json(createOrder);
+    return res.status(201).json(createOrder);
   } catch (err) {
-    const updateStock = await Product.findOneAndUpdate(
-      { sku: sku, stock: { $gt: quantity } },
-      { $inc: { stock: Number(quantity) } },
-      { new: true },
-    );
-    console.log(updateStock);
-    return res.status(400).json({ message: "cannot create order, rollback" });
-    console.error("cannot create order", err);
+    return next(err);
   }
 };
