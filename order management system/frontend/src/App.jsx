@@ -1,16 +1,44 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import heroImg from "./assets/hero.png";
 import "./App.css";
+import NewOrder from "./pages/NewOrder.jsx";
+import UpdateStock from "./pages/UpdateStock.jsx";
+import Orders from "./pages/Orders.jsx";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [route, setRoute] = useState("order");
 
   return (
-    <>
-      <section id="center"></section>
-    </>
+    <main className="app-shell">
+      <header className="topbar">
+        <div className="brand">
+          <span className="logo">OM</span>
+          <span>Order management</span>
+        </div>
+        <nav aria-label="Main navigation">
+          <button
+            className={route === "order" ? "nav-link active" : "nav-link"}
+            onClick={() => setRoute("order")}
+          >
+            New order
+          </button>
+          <button
+            className={route === "stock" ? "nav-link active" : "nav-link"}
+            onClick={() => setRoute("stock")}
+          >
+            Update stock
+          </button>
+          <button
+            className={route === "orders" ? "nav-link active" : "nav-link"}
+            onClick={() => setRoute("orders")}
+          >
+            All orders
+          </button>
+        </nav>
+      </header>
+      {route === "order" && <NewOrder />}
+      {route === "stock" && <UpdateStock />}
+      {route === "orders" && <Orders />}
+    </main>
   );
 }
 
